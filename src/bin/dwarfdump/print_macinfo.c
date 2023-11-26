@@ -63,7 +63,7 @@ print_one_macro_entry_detail(long i,
     /* "DW_MACINFO_*: section-offset file-index [line] string\n" */
     if (glflags.gf_do_print_dwarf) {
         if (mdp->dmd_macro) {
-            printf("%3ld %s: %6" DW_PR_DUu " %4" DW_PR_DSd " [%4"
+            fprintf(glflags.cstdout,"%3ld %s: %6" DW_PR_DUu " %4" DW_PR_DSd " [%4"
                 DW_PR_DSd "] \"%s\" \n",
                 i,
                 type,
@@ -72,7 +72,7 @@ print_one_macro_entry_detail(long i,
                 sanitized(mdp->dmd_macro));
             print_split_macro_value(mdp->dmd_macro);
         } else {
-            printf("%3ld %s: %6" DW_PR_DUu " %4" DW_PR_DSd " [%4"
+            fprintf(glflags.cstdout,"%3ld %s: %6" DW_PR_DUu " %4" DW_PR_DSd " [%4"
                 DW_PR_DSd "] 0\n",
                 i,
                 type,
@@ -236,13 +236,13 @@ print_macinfo_by_offset(Dwarf_Debug dbg,
         esb_constructor_fixed(&truename,buf,sizeof(buf));
         get_true_section_name(dbg,".debug_macinfo",
             &truename,TRUE);
-        printf("\n%s\n",sanitized(esb_get_string(&truename)));
+        fprintf(glflags.cstdout,"\n%s\n",sanitized(esb_get_string(&truename)));
         esb_destructor(&truename);
-        printf("\n");
-        printf("compilation-unit .debug_macinfo offset "
+        fprintf(glflags.cstdout,"\n");
+        fprintf(glflags.cstdout,"compilation-unit .debug_macinfo offset "
             "0x%" DW_PR_XZEROS DW_PR_DUx "\n",offset);
-        printf("                          sec    file\n");
-        printf("num name                  offset index [line] "
+        fprintf(glflags.cstdout,"                          sec    file\n");
+        fprintf(glflags.cstdout,"num name                  offset index [line] "
             "\"string\"\n");
     }
     for (i = 0; i < count; i++) {
@@ -252,20 +252,20 @@ print_macinfo_by_offset(Dwarf_Debug dbg,
     }
 
     if (counts.mc_start_file == 0) {
-        printf("ERROR: DW_MACINFO file count of zero is "
+        fprintf(glflags.cstdout,"ERROR: DW_MACINFO file count of zero is "
             "invalid DWARF2/3/4\n");
         glflags.gf_count_major_errors++;
     }
     if (counts.mc_start_file != counts.mc_end_file) {
         glflags.gf_count_major_errors++;
-        printf("ERROR: Counts of DW_MACINFO start_file (%ld)"
+        fprintf(glflags.cstdout,"ERROR: Counts of DW_MACINFO start_file (%ld)"
             " end_file (%ld) "
             "do not match!. Incorrect DWARF2,3,4.\n",
             counts.mc_start_file, counts.mc_end_file);
     }
     if (counts.mc_code_zero < 1) {
         glflags.gf_count_major_errors++;
-        printf("ERROR: Count of zeros in macro group "
+        fprintf(glflags.cstdout,"ERROR: Count of zeros in macro group "
             "should be non-zero "
             "(1 preferred), count is %ld\n",
             counts.mc_code_zero);
@@ -275,7 +275,7 @@ print_macinfo_by_offset(Dwarf_Debug dbg,
     add_macro_import(&macinfo_check_tree,is_primary, offset,0,0);
     add_macro_area_len(&macinfo_check_tree,offset,totallen);
     if (glflags.gf_do_print_dwarf) {
-        printf("Macro counts: start file %ld, "
+        fprintf(glflags.cstdout,"Macro counts: start file %ld, "
             "end file %ld, "
             "define %ld, "
             "undef %ld, "

@@ -90,21 +90,21 @@ print_ranges(Dwarf_Debug dbg)
         if (!loopct) {
             get_true_section_name(dbg,".debug_ranges",
                 &truename,TRUE);
-            printf("\n%s\n",sanitized(esb_get_string(&truename)));
+            fprintf(glflags.cstdout,"\n%s\n",sanitized(esb_get_string(&truename)));
         }
         if (rres == DW_DLV_OK) {
             char *val = 0;
-            printf(" Ranges group %d:\n",group_number);
+            fprintf(glflags.cstdout," Ranges group %d:\n",group_number);
             esb_empty_string(&esb_string);
             print_ranges_list_to_extra(dbg,off,off,
                 rangeset,rangecount,bytecount,
                 &esb_string);
             dwarf_dealloc_ranges(dbg,rangeset,rangecount);
             val = esb_get_string(&esb_string);
-            printf("%s",sanitized(val));
+            fprintf(glflags.cstdout,"%s",sanitized(val));
             ++group_number;
         } else if (rres == DW_DLV_NO_ENTRY) {
-            printf("End of %s.\n",
+            fprintf(glflags.cstdout,"End of %s.\n",
                 sanitized(esb_get_string(&truename)));
             break;
         } else {
@@ -215,7 +215,7 @@ check_ranges_list(Dwarf_Debug dbg,
                                 "in printing ranges");
                             return dioff_res;
                         }
-                        printf(
+                        fprintf(glflags.cstdout,
                             "Offset = 0x%" DW_PR_XZEROS DW_PR_DUx
                             ", Base = 0x%" DW_PR_XZEROS DW_PR_DUx
                             ", "
@@ -242,12 +242,12 @@ check_ranges_list(Dwarf_Debug dbg,
         struct esb_s rangesstr;
         esb_constructor(&rangesstr);
 
-        printf("\n");
+        fprintf(glflags.cstdout,"\n");
         print_ranges_list_to_extra(dbg,original_off,
             finaloff,
             rangeset,rangecount,bytecount,
             &rangesstr);
-        printf("%s\n", sanitized(esb_get_string(&rangesstr)));
+        fprintf(glflags.cstdout,"%s\n", sanitized(esb_get_string(&rangesstr)));
         esb_destructor(&rangesstr);
     }
 

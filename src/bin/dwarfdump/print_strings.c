@@ -50,7 +50,7 @@ print_sec_name(Dwarf_Debug dbg)
     esb_constructor_fixed(&truename,buf,sizeof(buf));
     get_true_section_name(dbg,".debug_str",
         &truename,TRUE);
-    printf("\n%s\n",sanitized(esb_get_string(&truename)));
+    fprintf(glflags.cstdout,"\n%s\n",sanitized(esb_get_string(&truename)));
     esb_destructor(&truename);
 }
 
@@ -73,11 +73,11 @@ print_strings(Dwarf_Debug dbg,Dwarf_Error *err)
             print_sec_name(dbg);
         }
         if (glflags.gf_display_offsets) {
-            printf("name at offset 0x%" DW_PR_XZEROS DW_PR_DUx
+            fprintf(glflags.cstdout,"name at offset 0x%" DW_PR_XZEROS DW_PR_DUx
                 ", length %4" DW_PR_DSd " is '%s'\n",
                 (Dwarf_Unsigned)offset, length, sanitized(name));
         } else {
-            printf("name: length %4" DW_PR_DSd " is '%s'\n",
+            fprintf(glflags.cstdout,"name: length %4" DW_PR_DSd " is '%s'\n",
                 length, sanitized(name));
         }
         offset += length + 1;

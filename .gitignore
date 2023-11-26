@@ -45,3 +45,4 @@ autom4te.cache/
 test/*.log
 test/*.trs
 test/dwarfdump.conf
+.vs/

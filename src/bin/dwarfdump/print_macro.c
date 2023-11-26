@@ -148,14 +148,14 @@ static void
 print_stack_crash(void)
 {
     unsigned i = 0;
-    printf("MACRONOTE: The start file operation just above"
+    fprintf(glflags.cstdout,"MACRONOTE: The start file operation just above"
         " exceeds the max allowed of %d. "
         "Possibly corrupt dwarf\n",MACFILE_STACK_DEPTH_MAX);
     glflags.gf_count_macronotes++;
-    printf("    []  op#    line   filenum   filename\n");
+    fprintf(glflags.cstdout,"    []  op#    line   filenum   filename\n");
     for (i = 0; i < macfile_stack_next_to_use; ++i) {
         macfile_entry * m = macfile_array[macfile_stack[i]];
-        printf("    [%u] %3u %4" DW_PR_DUu
+        fprintf(glflags.cstdout,"    [%u] %3u %4" DW_PR_DUu
             " %2" DW_PR_DUu
             " MOFF=0x%" DW_PR_DUx
             " %s\n",
@@ -234,7 +234,7 @@ add_def_undef(unsigned opnum,
     if (!keystr) {
         if (!allocerror) {
             glflags.gf_count_major_errors++;
-            printf("ERROR: Macro define/undef "
+            fprintf(glflags.cstdout,"ERROR: Macro define/undef "
                 "macro op string strdup() fails, "
                 "Out of memory. Some dwarfdump"
                 "reporting will be incorrect.\n");
@@ -245,10 +245,10 @@ add_def_undef(unsigned opnum,
     key_length = find_set_keyend(keystr);
     if (!key_length) {
         if (!didprintdwarf) {
-            printf("%s",sanitized(esb_get_string(mtext)));
+            fprintf(glflags.cstdout,"%s",sanitized(esb_get_string(mtext)));
         }
         glflags.gf_count_major_errors++;
-        printf("ERROR: the above define/undef "
+        fprintf(glflags.cstdout,"ERROR: the above define/undef "
             "macro op is missing its "
             "macro name. Corrupt DWARF.\n");
         free(keystr);
@@ -264,7 +264,7 @@ add_def_undef(unsigned opnum,
             &macdefundeftree);
         meb = macdef_tree_find(keystr,&macdefundeftree);
         if (!meb) {
-            printf("ERROR: Unable to find key \"%s\" "
+            fprintf(glflags.cstdout,"ERROR: Unable to find key \"%s\" "
                 "in macdef tree though just created.\n",
                 sanitized(keystr));
             free(keystr);
@@ -288,33 +288,33 @@ add_def_undef(unsigned opnum,
             } else {
                 /* Not duplicate def. Bogus. */
                 if (!didprintdwarf) {
-                    printf("%s",sanitized(esb_get_string(mtext)));
+                    fprintf(glflags.cstdout,"%s",sanitized(esb_get_string(mtext)));
                 }
                 glflags.gf_count_macronotes++;
-                printf("MACRONOTE: Duplicating the macro "
+                fprintf(glflags.cstdout,"MACRONOTE: Duplicating the macro "
                     "name \"%s\" but with a different spelling "
                     "seems to be an error\n",
                     sanitized(keystr));
-                printf(" Earlier spelling in operator %u is\n",
+                fprintf(glflags.cstdout," Earlier spelling in operator %u is\n",
                     meb->md_operatornum);
                 m = macfile_from_array_index(
                     meb->md_file_array_entry);
-                printf("  MOFF=0x%" DW_PR_XZEROS DW_PR_DUx
+                fprintf(glflags.cstdout,"  MOFF=0x%" DW_PR_XZEROS DW_PR_DUx
                     " from line %" DW_PR_DUu " file %s",
                     meb->md_macro_unit_offset,
                     meb->md_line,
                     sanitized(m->ms_filename));
-                printf(" %s\n",sanitized(meb->md_string));
-                printf(" new spelling with operator %u is\n",
+                fprintf(glflags.cstdout," %s\n",sanitized(meb->md_string));
+                fprintf(glflags.cstdout," new spelling with operator %u is\n",
                     opnum);
                 m = macfile_from_array_index(
                     macfile_array_next_to_use -1);
-                printf("  MOFF=0x%" DW_PR_XZEROS DW_PR_DUx
+                fprintf(glflags.cstdout,"  MOFF=0x%" DW_PR_XZEROS DW_PR_DUx
                     " from line %" DW_PR_DUu " file %s",
                     macro_unit_offset,
                     line_number,
                     sanitized(m->ms_filename));
-                printf(" %s\n",sanitized(macro_string));
+                fprintf(glflags.cstdout," %s\n",sanitized(macro_string));
                 meb->md_defcount++;
             }
         } else {
@@ -332,7 +332,7 @@ add_def_undef(unsigned opnum,
                 &macdefundeftree);
             mee = macdef_tree_find(keystr,&macdefundeftree);
             if (!mee) {
-                printf("ERROR: Unable to find key \"%s\" "
+                fprintf(glflags.cstdout,"ERROR: Unable to find key \"%s\" "
                     "in macdef tree though just created..\n",
                     sanitized(keystr));
                 return;
@@ -360,7 +360,7 @@ add_def_undef(unsigned opnum,
             &macdefundeftree);
         mec = macdef_tree_find(keystr,&macdefundeftree);
         if (!mec) {
-            printf("ERROR: Unable to find key \"%s\" "
+            fprintf(glflags.cstdout,"ERROR: Unable to find key \"%s\" "
                 "in macdef tree though just created..\n",
                 sanitized(keystr));
             return;
@@ -386,7 +386,7 @@ add_def_undef(unsigned opnum,
             &macdefundeftree);
         med = macdef_tree_find(keystr,&macdefundeftree);
         if (!med) {
-            printf("ERROR: Unable to find key \"%s\" "
+            fprintf(glflags.cstdout,"ERROR: Unable to find key \"%s\" "
                 "in macdef tree though just created.3.\n",
                 sanitized(keystr));
             return;
@@ -402,33 +402,33 @@ add_def_undef(unsigned opnum,
     /* ASSERT: meb->md_undefined TRUE */
     /* In tree is marked undef. So undef again */
     if (!didprintdwarf) {
-        printf("%s",sanitized(esb_get_string(mtext)));
+        fprintf(glflags.cstdout,"%s",sanitized(esb_get_string(mtext)));
     }
     if (!glflags.gf_do_check_dwarf) {
         free(keystr);
         return;
     }
     glflags.gf_count_macronotes++;
-    printf("MACRONOTE: Duplicating the undefine of macro "
+    fprintf(glflags.cstdout,"MACRONOTE: Duplicating the undefine of macro "
         "name \"%s\" "
         "could possibly be an error.\n",
         sanitized(keystr));
-    printf(" Earlier in operator %u is\n", meb->md_operatornum);
+    fprintf(glflags.cstdout," Earlier in operator %u is\n", meb->md_operatornum);
     m = macfile_from_array_index(meb->md_file_array_entry);
-    printf("  MOFF=0x%" DW_PR_XZEROS DW_PR_DUx
+    fprintf(glflags.cstdout,"  MOFF=0x%" DW_PR_XZEROS DW_PR_DUx
         " from line %" DW_PR_DUu " file %s",
         meb->md_macro_unit_offset,
         meb->md_line,
         sanitized(m->ms_filename));
-    printf(" %s\n",sanitized(meb->md_key));
-    printf(" new  in operator %u is\n", opnum);
+    fprintf(glflags.cstdout," %s\n",sanitized(meb->md_key));
+    fprintf(glflags.cstdout," new  in operator %u is\n", opnum);
     m = macfile_from_array_index(macfile_array_next_to_use -1);
-    printf("  MOFF=0x%" DW_PR_XZEROS DW_PR_DUx
+    fprintf(glflags.cstdout,"  MOFF=0x%" DW_PR_XZEROS DW_PR_DUx
         " from line %" DW_PR_DUu " file %s",
         macro_unit_offset,
         line_number,
         sanitized(m->ms_filename));
-    printf(" %s\n",sanitized(keystr));
+    fprintf(glflags.cstdout," %s\n",sanitized(keystr));
     free(keystr);
     /*     free(me); */
     return;
@@ -454,7 +454,7 @@ expand_array_file_if_required(void)
             sizeof(macfile_entry *));
         if (!newar) {
             /*  Out of memory. */
-            printf("\nERROR: out of memory attempting "
+            fprintf(glflags.cstdout,"\nERROR: out of memory attempting "
                 "allocation of %u "
                 "entries on macfile_array. Skipping entry.\n",newlen);
             glflags.gf_count_major_errors++;
@@ -528,14 +528,14 @@ add_to_file_stack(unsigned k,
 
         /* DW_MACRO_end_file */
         if (!didprintdwarf && !glflags.gf_do_check_dwarf) {
-            printf("%s",sanitized(esb_get_string(mtext)));
+            fprintf(glflags.cstdout,"%s",sanitized(esb_get_string(mtext)));
         }
         if (!glflags.gf_do_check_dwarf) {
             macfile_entry *m = 0;
             m = macfile_from_array_index(
                 macfile_array_next_to_use -1);
             if (macfile_stack_next_to_use < 1) {
-                printf("MACRONOTE: End file operation just above"
+                fprintf(glflags.cstdout,"MACRONOTE: End file operation just above"
                     "  MOFF=0x%" DW_PR_XZEROS DW_PR_DUx
                     " file %s"
                     " has no applicable start file!"
@@ -554,7 +554,7 @@ add_to_file_stack(unsigned k,
     }
     if (macfile_stack_next_to_use >= MACFILE_STACK_DEPTH_MAX) {
         if (!didprintdwarf) {
-            printf("%s",sanitized(esb_get_string(mtext)));
+            fprintf(glflags.cstdout,"%s",sanitized(esb_get_string(mtext)));
         }
         print_stack_crash();
         return;
@@ -586,12 +586,12 @@ print_source_intro(Dwarf_Debug dbg,Dwarf_Die cu_die)
             dwarf_dealloc_error(dbg,err);
             err = 0;
         }
-        printf("Macro data from CU-DIE at %s offset 0x%"
+        fprintf(glflags.cstdout,"Macro data from CU-DIE at %s offset 0x%"
             DW_PR_XZEROS DW_PR_DUx ":\n",
             sanitized(sec_name),
             (Dwarf_Unsigned) off);
     } else {
-        printf("Macro data (for the CU-DIE at unknown location):\n");
+        fprintf(glflags.cstdout,"Macro data (for the CU-DIE at unknown location):\n");
     }
     if (ores == DW_DLV_ERROR) {
         dwarf_dealloc_error(dbg,err);
@@ -647,7 +647,7 @@ print_split_macro_value(const char *m_in)
     valstart = dwarf_find_macro_value_start(local);
     if (!*valstart) {
         /*  No value, just a name */
-        printf("         Name Only: %s\n",local);
+        fprintf(glflags.cstdout,"         Name Only: %s\n",local);
         return;
     }
     esb_constructor_fixed(&m,typbuf,sizeof(typbuf));
@@ -659,13 +659,13 @@ print_split_macro_value(const char *m_in)
         lastchar = *cur;
     }
     if (lastchar != ' ') {
-        printf("ERROR: Macro missing space to separate"
+        fprintf(glflags.cstdout,"ERROR: Macro missing space to separate"
             "name from value!");
         glflags.gf_count_major_errors++;
         return;
     }
-    printf("         Name : %s\n",sanitized(esb_get_string(&m)));
-    printf("         Value: %s\n",sanitized(valstart));
+    fprintf(glflags.cstdout,"         Name : %s\n",sanitized(esb_get_string(&m)));
+    fprintf(glflags.cstdout,"         Value: %s\n",sanitized(valstart));
     esb_destructor(&m);
 }
 
@@ -773,7 +773,7 @@ print_macro_ops(Dwarf_Debug dbg,
             *macro_unit_length = macro_unit_len;
             esb_append(&mtext,"\n");
             if (do_print_dwarf) {
-                printf("%s",sanitized(esb_get_string(&mtext)));
+                fprintf(glflags.cstdout,"%s",sanitized(esb_get_string(&mtext)));
             }
             }
             break;
@@ -782,7 +782,7 @@ print_macro_ops(Dwarf_Debug dbg,
                 esb_append(&mtext,"\n");
             }
             if (do_print_dwarf) {
-                printf("%s",sanitized(esb_get_string(&mtext)));
+                fprintf(glflags.cstdout,"%s",sanitized(esb_get_string(&mtext)));
             }
             add_to_file_stack(k,offset,macro_operator,
                 line_number,offset,
@@ -811,7 +811,7 @@ print_macro_ops(Dwarf_Debug dbg,
                 macro_string?
                 sanitized(macro_string):nonameavail);
             if (do_print_dwarf) {
-                printf("%s",sanitized(esb_get_string(&mtext)));
+                fprintf(glflags.cstdout,"%s",sanitized(esb_get_string(&mtext)));
                 if (macro_string) {
                     print_split_macro_value(macro_string);
                 }
@@ -849,7 +849,7 @@ print_macro_ops(Dwarf_Debug dbg,
                 " %s\n",macro_string?
                 sanitized(macro_string):nonameavail);
             if (do_print_dwarf) {
-                printf("%s",esb_get_string(&mtext));
+                fprintf(glflags.cstdout,"%s",esb_get_string(&mtext));
                 if (macro_string) {
                     print_split_macro_value(macro_string);
                 }
@@ -886,7 +886,7 @@ print_macro_ops(Dwarf_Debug dbg,
                 " %s\n",macro_string?
                 sanitized(macro_string):nonameavail);
             if (do_print_dwarf) {
-                printf("%s",sanitized(esb_get_string(&mtext)));
+                fprintf(glflags.cstdout,"%s",sanitized(esb_get_string(&mtext)));
                 if (macro_string) {
                     print_split_macro_value(macro_string);
                 }
@@ -932,7 +932,7 @@ print_macro_ops(Dwarf_Debug dbg,
                 " %s\n",macro_string?
                 sanitized(macro_string):nonameavail);
             if (do_print_dwarf) {
-                printf("%s",sanitized(esb_get_string(&mtext)));
+                fprintf(glflags.cstdout,"%s",sanitized(esb_get_string(&mtext)));
                 if (macro_string) {
                     print_split_macro_value(macro_string);
                 }
@@ -965,7 +965,7 @@ print_macro_ops(Dwarf_Debug dbg,
                 macro_string: "<no-name-available>");
             esb_append(&mtext,"\n");
             if (do_print_dwarf) {
-                printf("%s",sanitized(esb_get_string(&mtext)));
+                fprintf(glflags.cstdout,"%s",sanitized(esb_get_string(&mtext)));
             }
             add_to_file_stack(k,offset,macro_operator,
                 line_number,index,
@@ -991,7 +991,7 @@ print_macro_ops(Dwarf_Debug dbg,
             }
             esb_append(&mtext,"\n");
             if (do_print_dwarf) {
-                printf("%s",sanitized(esb_get_string(&mtext)));
+                fprintf(glflags.cstdout,"%s",sanitized(esb_get_string(&mtext)));
             }
             if (descend_into_import) {
                 /*  not do_print_dwarf */
@@ -1000,7 +1000,7 @@ print_macro_ops(Dwarf_Debug dbg,
                     macfile_array_next_to_use-1);
                 mres = macro_import_stack_present(offset);
                 if (mres == DW_DLV_OK) {
-                    printf("ERROR: While Printing DWARF5 macros "
+                    fprintf(glflags.cstdout,"ERROR: While Printing DWARF5 macros "
                         "we find a recursive nest of imports "
                         " noted with offset 0x%"
                         DW_PR_XZEROS DW_PR_DUx " so we stop now. \n",
@@ -1054,7 +1054,7 @@ print_macro_ops(Dwarf_Debug dbg,
                 or know the size. As of December 2020 */
 #endif
             if (do_print_dwarf) {
-                printf("  sup_offset 0x%" DW_PR_XZEROS DW_PR_DUx "\n"
+                fprintf(glflags.cstdout,"  sup_offset 0x%" DW_PR_XZEROS DW_PR_DUx "\n"
                     ,offset);
             }
             break;
@@ -1154,13 +1154,13 @@ print_macros_5style_this_cu_inner(Dwarf_Debug dbg, Dwarf_Die cu_die,
         /* This does not return */
 
         if (!by_offset) {
-            printf("\n%s: Macro info for a single cu at macro Offset"
+            fprintf(glflags.cstdout,"\n%s: Macro info for a single cu at macro Offset"
                 " 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
                 sanitized(esb_get_string(&truename)),
                 macro_unit_offset);
             print_source_intro(dbg,cu_die);
         } else {
-            printf("\n%s: Macro info for imported macro unit "
+            fprintf(glflags.cstdout,"\n%s: Macro info for imported macro unit "
                 "at macro Offset "
                 "0x%" DW_PR_XZEROS DW_PR_DUx
                 "\n",
@@ -1248,14 +1248,14 @@ print_macros_5style_this_cu_inner(Dwarf_Debug dbg, Dwarf_Die cu_die,
                 This is a start, allowing us to track
                 the imported tables. Add verbose to see
                 the rest printed just below */
-            printf("%s  Nested import level: %d\n",prefix,level);
-            printf("%s  Macro version      : %d\n",prefix,lversion);
-            printf("%s  macro section offset 0x%"
+            fprintf(glflags.cstdout,"%s  Nested import level: %d\n",prefix,level);
+            fprintf(glflags.cstdout,"%s  Macro version      : %d\n",prefix,lversion);
+            fprintf(glflags.cstdout,"%s  macro section offset 0x%"
                 DW_PR_XZEROS DW_PR_DUx "\n",prefix,
                 mac_offset);
         }
         if (glflags.verbose && !glflags.gf_do_check_dwarf) {
-            printf("%s  flags: 0x%x, "
+            fprintf(glflags.cstdout,"%s  flags: 0x%x, "
                 "offsetsize64? %s, "
                 "lineoffset? %s, "
                 "operands_table? %s\n",
@@ -1264,13 +1264,13 @@ print_macros_5style_this_cu_inner(Dwarf_Debug dbg, Dwarf_Die cu_die,
                 has_offset_size_64?"yes":" no",
                 has_line_offset   ?"yes":" no",
                 has_operands_table?"yes":" no");
-            printf("%s  offset size 0x%x\n",prefix,offset_size);
-            printf("%s  header length: 0x%" DW_PR_XZEROS DW_PR_DUx
+            fprintf(glflags.cstdout,"%s  offset size 0x%x\n",prefix,offset_size);
+            fprintf(glflags.cstdout,"%s  header length: 0x%" DW_PR_XZEROS DW_PR_DUx
                 "  total length: 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
                 prefix,
                 mac_header_len,mac_len);
             if (has_line_offset) {
-                printf("  debug_line_offset: 0x%"
+                fprintf(glflags.cstdout,"  debug_line_offset: 0x%"
                     DW_PR_XZEROS DW_PR_DUx "\n",
                     line_offset);
             }
@@ -1322,13 +1322,13 @@ print_macros_5style_this_cu_inner(Dwarf_Debug dbg, Dwarf_Die cu_die,
                         return lres;
                     }
                     if (opcode_num == 0) {
-                        printf("%s  [%3u]  end of macro operands.",
+                        fprintf(glflags.cstdout,"%s  [%3u]  end of macro operands.",
                             prefix,i);
                         /*  Continue just in case something is wrong
                             and there are more operands! */
                         continue;
                     }
-                    printf("%s  [%3u]  op: 0x%04x  %20s  "
+                    fprintf(glflags.cstdout,"%s  [%3u]  op: 0x%04x  %20s  "
                         "operandcount: %u\n",
                         prefix,
                         i,opcode_num,
@@ -1337,7 +1337,7 @@ print_macros_5style_this_cu_inner(Dwarf_Debug dbg, Dwarf_Die cu_die,
                         operand_count);
                     for (j = 0; j < operand_count; ++j) {
                         Dwarf_Small opnd = operand_array[j];
-                        printf("%s    [%3u] 0x%04x %20s\n",
+                        fprintf(glflags.cstdout,"%s    [%3u] 0x%04x %20s\n",
                             prefix,j,opnd,
                             get_FORM_name(opnd,
                                 dwarf_names_print_on_error));
@@ -1346,7 +1346,7 @@ print_macros_5style_this_cu_inner(Dwarf_Debug dbg, Dwarf_Die cu_die,
             }
         }
         if (do_print_dwarf) {
-            printf("  MacroInformationEntries count: %" DW_PR_DUu
+            fprintf(glflags.cstdout,"  MacroInformationEntries count: %" DW_PR_DUu
                 ", bytes length: %" DW_PR_DUu "\n",
                 number_of_ops,ops_total_byte_len);
         }
@@ -1435,7 +1435,7 @@ print_macros_5style_this_cu(Dwarf_Debug dbg, Dwarf_Die cu_die,
 
     if (macfile_array_next_to_use || macfile_stack_next_to_use ||
         macdefundeftree || macfile_array) {
-        printf("ERROR: dwarfdump internal files not properly "
+        fprintf(glflags.cstdout,"ERROR: dwarfdump internal files not properly "
             "initialized, internal dwarfdump bug. "
             "No macro access done. "
             "Pretending no macro section present\n");
@@ -1649,14 +1649,14 @@ static void
 print_macdef_warn(unsigned i, macdef_entry *m,unsigned warncount)
 {
     if (!warncount) {
-        printf("     macro        "
+        fprintf(glflags.cstdout,"     macro        "
             "            defs  undefs at-end\n");
     }
-    printf("[%2d] %-24s",i,m->md_key);
-    printf(" %2u",m->md_defcount);
-    printf("     %2u",m->md_undefcount);
-    printf("  %s",m->md_defined?"defined":"undefined");
-    printf("\n");
+    fprintf(glflags.cstdout,"[%2d] %-24s",i,m->md_key);
+    fprintf(glflags.cstdout," %2u",m->md_defcount);
+    fprintf(glflags.cstdout,"     %2u",m->md_undefcount);
+    fprintf(glflags.cstdout,"  %s",m->md_defined?"defined":"undefined");
+    fprintf(glflags.cstdout,"\n");
 }
 
 /*  Check the macdefundef tree for the unusual
@@ -1675,15 +1675,15 @@ macdef_tree_run_checks(void)
     mac_as_array = 0;
     mac_as_array_next = 0;
     if (macfile_stack_next_to_use > 1) {
-        printf("MACRONOTE: The DWARF5 macro start-file stack has"
+        fprintf(glflags.cstdout,"MACRONOTE: The DWARF5 macro start-file stack has"
             " %u entries left on the stack. Missing "
             " some end-file entries?\n",
             macfile_stack_next_to_use);
         glflags.gf_count_macronotes++;
-        printf("    []  op#    line   filenum   filename\n");
+        fprintf(glflags.cstdout,"    []  op#    line   filenum   filename\n");
         for (i = 0; i < macfile_stack_next_to_use; ++i) {
             macfile_entry * m = macfile_array[macfile_stack[i]];
-            printf("    [%u] %3u %4" DW_PR_DUu
+            fprintf(glflags.cstdout,"    [%u] %3u %4" DW_PR_DUu
                 " %2" DW_PR_DUu " %s\n",
                 i, m->ms_operatornum,m->ms_line,m->ms_filenum,
                 sanitized(m->ms_filename));

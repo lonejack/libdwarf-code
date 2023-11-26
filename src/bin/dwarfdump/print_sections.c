@@ -79,11 +79,11 @@ dump_block(char *prefix, char *data, Dwarf_Signed len)
     char *cur = data;
     int i = 0;
 
-    printf("%s", prefix);
+    fprintf(glflags.cstdout,"%s", prefix);
     for (; cur < end_data; ++cur, ++i) {
         if (i > 0 && i % 4 == 0)
-            printf(" ");
-        printf("%02x", 0xff & *cur);
+            fprintf(glflags.cstdout," ");
+        fprintf(glflags.cstdout,"%02x", 0xff & *cur);
 
     }
 }

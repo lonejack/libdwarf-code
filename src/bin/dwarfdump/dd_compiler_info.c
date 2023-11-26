@@ -27,7 +27,7 @@
 #include <config.h>
 
 #include <stddef.h> /* NULL */
-#include <stdio.h>  /* stdout fprintf() printf() */
+#include <stdio.h>  /* stdout fprintf() fprintf(glflags.glos,) */
 #include <stdlib.h> /* exit() free() malloc() qsort() */
 #include <string.h> /* memset() strcmp() stricmp()
     strlen() strncmp() */
@@ -94,15 +94,15 @@ PRINT_CHECK_RESULT(char *str,
     Compiler *pCompiler, Dwarf_Check_Categories category)
 {
     Dwarf_Check_Result result = pCompiler->results[category];
-    printf("%-24s%10d  %10d\n", str, result.checks, result.errors);
+    fprintf(glflags.cstdout,"%-24s%10d  %10d\n", str, result.checks, result.errors);
 }
 
 /* Print checks and errors for a specific compiler */
 static void
 print_specific_checks_results(Compiler *pCompiler)
 {
-    printf("\nDWARF CHECK RESULT\n");
-    printf("<item>                    <checks>    <errors>\n");
+    fprintf(glflags.cstdout,"\nDWARF CHECK RESULT\n");
+    fprintf(glflags.cstdout,"<item>                    <checks>    <errors>\n");
     if (glflags.gf_check_pubname_attr) {
         PRINT_CHECK_RESULT("pubname_attr", pCompiler,
             pubname_attr_result);
@@ -194,7 +194,7 @@ print_specific_checks_results(Compiler *pCompiler)
 
     PRINT_CHECK_RESULT("** Summarize **",pCompiler,
         total_check_result);
-    fflush(stdout);
+    fflush(glflags.cstdout);
 }
 
 /*  Add a CU name to the current compiler entry, specified by the
@@ -210,7 +210,7 @@ add_cu_name_compiler_target(char *name)
     Compiler *pCompiler = 0;
 
     if (current_compiler < 1) {
-        printf("ERROR Current  compiler set to %d, cannot add "
+        fprintf(glflags.cstdout,"ERROR Current  compiler set to %d, cannot add "
             "Compilation unit name.  Giving up.",current_compiler);
         exit(EXIT_FAILURE);
     }
@@ -219,7 +219,7 @@ add_cu_name_compiler_target(char *name)
     /* Record current cu name */
     nc = (a_name_chain *)malloc(sizeof(a_name_chain));
     if (!nc) {
-        printf("ERROR Out of memory "
+        fprintf(glflags.cstdout,"ERROR Out of memory "
             "allocating compiler target %s "
             "(not saved)\n",name);
         glflags.gf_count_major_errors++;
@@ -387,21 +387,21 @@ print_checks_results(void)
         int count = 0;
         int total = 0;
 
-        printf("\n*** CU NAMES PER COMPILER ***\n");
+        fprintf(glflags.cstdout,"\n*** CU NAMES PER COMPILER ***\n");
         for (index = 1; index <= compilers_detected_count; ++index) {
             pCompiler = &compilers_detected[index];
-            printf("\n%02d: %s",index,sanitized(pCompiler->name));
+            fprintf(glflags.cstdout,"\n%02d: %s",index,sanitized(pCompiler->name));
             count = 0;
             for (nc = pCompiler->cu_list; nc; nc = nc_next) {
-                printf("\n    %02d: '%s'",++count,
+                fprintf(glflags.cstdout,"\n    %02d: '%s'",++count,
                 sanitized(nc->item));
                 nc_next = nc->next;
                 free(nc);
             }
             total += count;
-            printf("\n");
+            fprintf(glflags.cstdout,"\n");
         }
-        printf("\nDetected %d CU names\n",total);
+        fprintf(glflags.cstdout,"\nDetected %d CU names\n",total);
     }
 
     /* Print error report only if errors have been detected */
@@ -426,24 +426,24 @@ print_checks_results(void)
         }
 
         /* Print compilers detected list */
-        printf(
+        fprintf(glflags.cstdout,
             "\n%d Compilers detected:\n",compilers_detected_count);
         for (index = 1; index <= compilers_detected_count; ++index) {
             pCompiler = &compilers_detected[index];
-            printf("%02d: %s\n",index,sanitized(pCompiler->name));
+            fprintf(glflags.cstdout,"%02d: %s\n",index,sanitized(pCompiler->name));
         }
 
         /*  Print compiler list specified by the user with the
             '-c<str>', that were not detected. */
         if (compilers_not_detected) {
             count = 0;
-            printf(
+            fprintf(glflags.cstdout,
                 "\n%d Compilers not detected:\n",
                 compilers_not_detected);
             for (index = 1; index <= compilers_targeted_count;
                 ++index) {
                 if (!compilers_targeted[index].verified) {
-                    printf(
+                    fprintf(glflags.cstdout,
                         "%02d: '%s'\n",
                         ++count,
                         sanitized(compilers_targeted[index].name));
@@ -452,11 +452,11 @@ print_checks_results(void)
         }
 
         count = 0;
-        printf("\n%d Compilers verified:\n",compilers_verified);
+        fprintf(glflags.cstdout,"\n%d Compilers verified:\n",compilers_verified);
         for (index = 1; index <= compilers_detected_count; ++index) {
             pCompiler = &compilers_detected[index];
             if (pCompiler->verified) {
-                printf("%02d: errors = %5d, %s\n",
+                fprintf(glflags.cstdout,"%02d: errors = %5d, %s\n",
                     ++count,
                     pCompiler->results[total_check_result].errors,
                     sanitized(pCompiler->name));
@@ -469,12 +469,12 @@ print_checks_results(void)
             /* Print compilers detected summary*/
             if (glflags.gf_print_summary_all) {
                 count = 0;
-                printf("\n*** ERRORS PER COMPILER ***\n");
+                fprintf(glflags.cstdout,"\n*** ERRORS PER COMPILER ***\n");
                 for (index = 1; index <= compilers_detected_count;
                     ++index) {
                     pCompiler = &compilers_detected[index];
                     if (pCompiler->verified) {
-                        printf("\n%02d: %s",
+                        fprintf(glflags.cstdout,"\n%02d: %s",
                             ++count,sanitized(pCompiler->name));
                         print_specific_checks_results(pCompiler);
                     }
@@ -482,11 +482,11 @@ print_checks_results(void)
             }
 
             /* Print general summary (all compilers checked) */
-            printf("\n*** TOTAL ERRORS FOR ALL COMPILERS ***\n");
+            fprintf(glflags.cstdout,"\n*** TOTAL ERRORS FOR ALL COMPILERS ***\n");
             print_specific_checks_results(&compilers_detected[0]);
         }
     }
-    fflush(stdout);
+    fflush(glflags.cstdout);
 }
 
 void DWARF_CHECK_COUNT(Dwarf_Check_Categories category, int inc)

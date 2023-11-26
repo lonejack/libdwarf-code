@@ -124,13 +124,13 @@ update_cu_base_addresses(Dwarf_Debug dbg,
 static void
 dumplohipc(LoHiPc *hilopc,char *msg, int line)
 {
-    printf("LoHiPc  %s line %d "
+    fprintf(glflags.glos,"LoHiPc  %s line %d "
         "sawlo:    %d  0x%" DW_PR_XZEROS DW_PR_DUx "\n",
         msg,line,
         hilopc->sawlo_flag,hilopc->lopc);
-    printf( "    sawhi:    %d  0x%" DW_PR_XZEROS DW_PR_DUx "\n",
+    fprintf(glflags.glos, "    sawhi:    %d  0x%" DW_PR_XZEROS DW_PR_DUx "\n",
         hilopc->sawhi_flag,hilopc->hival);
-    printf( "    havefinal:%d  0x%" DW_PR_XZEROS DW_PR_DUx "\n",
+    fprintf(glflags.glos, "    havefinal:%d  0x%" DW_PR_XZEROS DW_PR_DUx "\n",
         hilopc->havefinal_flag,hilopc->hifinal);
 }
 #endif
@@ -229,7 +229,7 @@ checking_valid_code(Dwarf_Half tag,
                 "for low_pc/high_pc");
             if (glflags.gf_check_verbose_mode &&
                 PRINTING_UNIQUE) {
-                printf("Low = 0x%" DW_PR_XZEROS DW_PR_DUx
+                fprintf(glflags.cstdout,"Low = 0x%" DW_PR_XZEROS DW_PR_DUx
                     ", High = 0x%"
                     DW_PR_XZEROS DW_PR_DUx "\n",
                     lowaddr,highaddr);

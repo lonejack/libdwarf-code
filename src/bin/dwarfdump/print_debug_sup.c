@@ -69,7 +69,7 @@ print_debug_sup(Dwarf_Debug dbg,
         &checksum_ptr,error);
     if (res == DW_DLV_ERROR) {
         glflags.gf_count_major_errors++;
-        printf("ERROR: problem reading %s. %s\n",
+        fprintf(glflags.cstdout,"ERROR: problem reading %s. %s\n",
             sanitized(esb_get_string(&truename)),
             dwarf_errmsg(*error));
         dwarf_dealloc_error(dbg,*error);
@@ -81,38 +81,38 @@ print_debug_sup(Dwarf_Debug dbg,
         esb_destructor(&truename);
         return res;
     }
-    printf("\n%s\n",sanitized(esb_get_string(&truename)));
-    printf("  Version              : %u\n",version);
+    fprintf(glflags.cstdout,"\n%s\n",sanitized(esb_get_string(&truename)));
+    fprintf(glflags.cstdout,"  Version              : %u\n",version);
     if (version != 2) {
         glflags.gf_count_major_errors++;
-        printf("ERROR: the %s version is %u but "
+        fprintf(glflags.cstdout,"ERROR: the %s version is %u but "
             "only 2 is currently valid\n",
             sanitized(esb_get_string(&truename)),
             version);
     }
-    printf("  Supplementary file   : %u (%s}\n",is_supplementary,
+    fprintf(glflags.cstdout,"  Supplementary file   : %u (%s}\n",is_supplementary,
         is_supplementary?"yes":"no");
     if (is_supplementary > 1) {
         glflags.gf_count_major_errors++;
-        printf("ERROR: the %s is_supplementary field is %u but "
+        fprintf(glflags.cstdout,"ERROR: the %s is_supplementary field is %u but "
             "only 0 or 1 is currently valid\n",
             sanitized(esb_get_string(&truename)),
             is_supplementary);
     }
-    printf("  Filename             : %s\n",sanitized(filename));
-    printf("  Checksum Length      : %" DW_PR_DUu "\n",checksum_len);
-    printf("  Checksum bytes in hex:\n");
+    fprintf(glflags.cstdout,"  Filename             : %s\n",sanitized(filename));
+    fprintf(glflags.cstdout,"  Checksum Length      : %" DW_PR_DUu "\n",checksum_len);
+    fprintf(glflags.cstdout,"  Checksum bytes in hex:\n");
     curptr = checksum_ptr;
     if (checksum_len > 0) {
-        printf("    ");
+        fprintf(glflags.cstdout,"    ");
     }
     for (i = 0 ; i < checksum_len; ++i,++curptr) {
         if (i > 0 && (i%16) == 0) {
-            printf("\n    ");
+            fprintf(glflags.cstdout,"\n    ");
         }
-        printf("%02x",*curptr);
+        fprintf(glflags.cstdout,"%02x",*curptr);
     }
-    printf("\n");
+    fprintf(glflags.cstdout,"\n");
     esb_destructor(&truename);
     return DW_DLV_OK;
 }

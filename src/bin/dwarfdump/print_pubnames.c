@@ -63,7 +63,7 @@ check_info_offset_sanity(
     if (maxoff == 0) {
         /* Lets make a heuristic check. */
         if (offset > 0xffffffff) {
-            printf("Warning: section %s %s %s offset 0x%"
+            fprintf(glflags.cstdout,"Warning: section %s %s %s offset 0x%"
                 DW_PR_XZEROS DW_PR_DUx " "
                 "exceptionally large \n",
                 sec, field, global, offset);
@@ -71,7 +71,7 @@ check_info_offset_sanity(
         return;
     }
     if (offset >= maxoff) {
-        printf("Warning: section %s %s %s offset 0x%"
+        fprintf(glflags.cstdout,"Warning: section %s %s %s offset 0x%"
             DW_PR_XZEROS  DW_PR_DUx " "
                 "larger than max of 0x%" DW_PR_DUx "\n",
                 sec, field, global,  offset, maxoff);
@@ -158,7 +158,7 @@ print_pubname_style_entry(Dwarf_Debug dbg,
         cudres = dwarf_offdie_b(dbg, cu_die_off,is_info,
             &cu_die, &localerr);
         if (cudres != DW_DLV_OK) {
-            printf("ERROR: dwarf_offdie_b called "
+            fprintf(glflags.cstdout,"ERROR: dwarf_offdie_b called "
                 " CU die offset 0x%" DW_PR_DUx
                 " does not reference a valid CU DIE\n",
                 cu_die_off);
@@ -176,18 +176,18 @@ print_pubname_style_entry(Dwarf_Debug dbg,
     if (glflags.gf_display_offsets) {
         /* Print 'name' at the end for better layout */
         if (!globi) {
-            printf(" %s data.  %" DW_PR_DSd " %s\n",
+            fprintf(glflags.cstdout," %s data.  %" DW_PR_DSd " %s\n",
                 line_title,globcount,
                 globcount==1?"entry":"entries");
 #if 0
-            printf("  DIE        DIE      CU DIE       CU DIE\n");
-            printf("  in sect    in CU    in sect      in sect\n");
+            fprintf(glflags.glos,"  DIE        DIE      CU DIE       CU DIE\n");
+            fprintf(glflags.glos,"  in sect    in CU    in sect      in sect\n");
 #endif
 
-            printf("  CUhdr      DIE        CU DIE     DIE\n");
-            printf("  in sect    in CU      in sect    in sect\n");
+            fprintf(glflags.cstdout,"  CUhdr      DIE        CU DIE     DIE\n");
+            fprintf(glflags.cstdout,"  in sect    in CU      in sect    in sect\n");
         }
-        printf(" 0x%" DW_PR_XZEROS DW_PR_DUx
+        fprintf(glflags.cstdout," 0x%" DW_PR_XZEROS DW_PR_DUx
             " 0x%" DW_PR_XZEROS DW_PR_DUx
             " 0x%" DW_PR_XZEROS DW_PR_DUx
             " 0x%" DW_PR_XZEROS DW_PR_DUx ,
@@ -197,10 +197,10 @@ print_pubname_style_entry(Dwarf_Debug dbg,
         if (dietag) {
             const char * tagname = "";
             dwarf_get_TAG_name(dietag,&tagname);
-            printf(" %-18s",tagname);
+            fprintf(glflags.cstdout," %-18s",tagname);
         }
 #if 0
-        printf("%s die-in-sect 0x%" DW_PR_XZEROS DW_PR_DUx
+        fprintf(glflags.glos,"%s die-in-sect 0x%" DW_PR_XZEROS DW_PR_DUx
             ", cu-in-sect 0x%" DW_PR_XZEROS DW_PR_DUx ","
             " die-in-cu 0x%" DW_PR_XZEROS DW_PR_DUx
             ", cu-header-in-sect 0x%" DW_PR_XZEROS DW_PR_DUx ,
@@ -236,7 +236,7 @@ print_pubname_style_entry(Dwarf_Debug dbg,
 #endif
 
     /* Print 'name' at the end for better layout */
-    printf(" '%s'\n",name);
+    fprintf(glflags.cstdout," '%s'\n",name);
     dwarf_dealloc(dbg, die, DW_DLA_DIE);
     check_info_offset_sanity(line_title,
         "die offset", name, global_die_off, maxoff);
@@ -257,26 +257,26 @@ print_globals_header(
     Dwarf_Off info_header_offset,
     Dwarf_Unsigned info_length)
 {
-    printf("Pub section offset   0x%" DW_PR_XZEROS DW_PR_DUx
+    fprintf(glflags.cstdout,"Pub section offset   0x%" DW_PR_XZEROS DW_PR_DUx
         " (%" DW_PR_DUu ")\n",
         pub_section_hdr_offset,pub_section_hdr_offset);
-    printf("  offset size        0x%" DW_PR_XZEROS DW_PR_DUx
+    fprintf(glflags.cstdout,"  offset size        0x%" DW_PR_XZEROS DW_PR_DUx
         " (%" DW_PR_DUu ")\n",
         length_size,
         length_size);
-    printf("  length             0x%" DW_PR_XZEROS DW_PR_DUx
+    fprintf(glflags.cstdout,"  length             0x%" DW_PR_XZEROS DW_PR_DUx
         " (%" DW_PR_DUu ")\n",
         length,
         length);
-    printf("  version            0x%" DW_PR_XZEROS DW_PR_DUx
+    fprintf(glflags.cstdout,"  version            0x%" DW_PR_XZEROS DW_PR_DUx
         " (%" DW_PR_DUu ")\n",
         version,
         version);
-    printf("  info hdr offset    0x%" DW_PR_XZEROS DW_PR_DUx
+    fprintf(glflags.cstdout,"  info hdr offset    0x%" DW_PR_XZEROS DW_PR_DUx
         " (%" DW_PR_DUu ")\n",
         info_header_offset,
         info_header_offset);
-    printf("  info hdr length    0x%" DW_PR_XZEROS DW_PR_DUx
+    fprintf(glflags.cstdout,"  info hdr length    0x%" DW_PR_XZEROS DW_PR_DUx
         " (%" DW_PR_DUu ")\n",
         info_length,
         info_length);
@@ -329,7 +329,7 @@ print_pubnames_style(Dwarf_Debug dbg,
     const char  *stdsection = 0;
 
     if (category > DW_GL_WEAKS) {
-        printf("ERROR: passing category to print_pubnames "
+        fprintf(glflags.cstdout,"ERROR: passing category to print_pubnames "
             "that is unusable and ignored: %d\n",category);
         return DW_DLV_OK;
     }
@@ -415,7 +415,7 @@ print_pubnames_style(Dwarf_Debug dbg,
         return res;
     }
     if (glflags.gf_do_print_dwarf) {
-        printf("\n%s\n",esb_get_string(&sanitname));
+        fprintf(glflags.cstdout,"\n%s\n",esb_get_string(&sanitname));
     }
     if (res == DW_DLV_ERROR) {
         esb_destructor(&sanitname);

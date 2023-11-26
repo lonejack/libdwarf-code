@@ -54,7 +54,7 @@ print_sec_name(Dwarf_Debug dbg)
     esb_constructor_fixed(&truename,buf,sizeof(buf));
     get_true_section_name(dbg,".debug_rnglists",
         &truename,TRUE);
-    printf("\n%s\n\n",sanitized(esb_get_string(&truename)));
+    fprintf(glflags.cstdout,"\n%s\n\n",sanitized(esb_get_string(&truename)));
     esb_destructor(&truename);
 }
 
@@ -74,7 +74,7 @@ print_offset_entry_table(Dwarf_Debug dbg,
         Dwarf_Unsigned value = 0;
 
         if (e == 0) {
-            printf("   Location Offset Table :\n");
+            fprintf(glflags.cstdout,"   Location Offset Table :\n");
         }
         hasnewline = FALSE;
         res = dwarf_get_rnglist_offset_index_value(dbg,
@@ -83,18 +83,18 @@ print_offset_entry_table(Dwarf_Debug dbg,
             return res;
         }
         if (col == 0) {
-            printf("   [%2" DW_PR_DUu "]",e);
+            fprintf(glflags.cstdout,"   [%2" DW_PR_DUu "]",e);
         }
-        printf(" 0x%" DW_PR_XZEROS DW_PR_DUx, value);
+        fprintf(glflags.cstdout," 0x%" DW_PR_XZEROS DW_PR_DUx, value);
         col++;
         if (col == colmax) {
-            printf("\n");
+            fprintf(glflags.cstdout,"\n");
             hasnewline = TRUE;
             col = 0;
         }
     }
     if (!hasnewline) {
-        printf("\n");
+        fprintf(glflags.cstdout,"\n");
     }
     return DW_DLV_OK;
 }
@@ -121,59 +121,59 @@ print_single_rle(Dwarf_Unsigned lineoffset,
     } else {
         esb_append(&m,name);
     }
-    printf("    ");
-    printf("<0x%" DW_PR_XZEROS DW_PR_DUx "> %-20s",
+    fprintf(glflags.cstdout,"    ");
+    fprintf(glflags.cstdout,"<0x%" DW_PR_XZEROS DW_PR_DUx "> %-20s",
         lineoffset,esb_get_string(&m));
     switch(code) {
     case DW_RLE_end_of_list:
-        printf("           ");
-        printf("           ");
+        fprintf(glflags.cstdout,"           ");
+        fprintf(glflags.cstdout,"           ");
         break;
 
     case DW_RLE_base_addressx:{
-        printf(" 0x%" DW_PR_XZEROS DW_PR_DUx ,v1);
-        printf("           ");
+        fprintf(glflags.cstdout," 0x%" DW_PR_XZEROS DW_PR_DUx ,v1);
+        fprintf(glflags.cstdout,"           ");
         }
         break;
     case DW_RLE_startx_endx: {
-        printf(
+        fprintf(glflags.cstdout,
             " 0x%" DW_PR_XZEROS DW_PR_DUx
             " 0x%" DW_PR_XZEROS DW_PR_DUx ,v1,v2);
         }
         break;
     case DW_RLE_startx_length: {
-        printf(
+        fprintf(glflags.cstdout,
             " 0x%" DW_PR_XZEROS DW_PR_DUx
             " 0x%" DW_PR_XZEROS DW_PR_DUx ,v1,v2);
         }
         break;
 
     case DW_RLE_offset_pair: {
-        printf(
+        fprintf(glflags.cstdout,
             " 0x%" DW_PR_XZEROS DW_PR_DUx
             " 0x%" DW_PR_XZEROS DW_PR_DUx ,v1,v2);
         }
         break;
     case DW_RLE_base_address: {
-        printf(
+        fprintf(glflags.cstdout,
             " 0x%" DW_PR_XZEROS DW_PR_DUx ,v1);
-        printf("           ");
+        fprintf(glflags.cstdout,"           ");
         }
         break;
     case DW_RLE_start_end: {
-        printf(
+        fprintf(glflags.cstdout,
             " 0x%" DW_PR_XZEROS DW_PR_DUx
             " 0x%" DW_PR_XZEROS DW_PR_DUx ,v1,v2);
         }
         break;
     case DW_RLE_start_length: {
-        printf(
+        fprintf(glflags.cstdout,
             " 0x%" DW_PR_XZEROS DW_PR_DUx
             " 0x%" DW_PR_XZEROS DW_PR_DUx ,v1,v2);
         }
         break;
     default:
-        printf(" ERROR: Unknown RLE code in .debug_rnglists. %s\n",
+        fprintf(glflags.cstdout," ERROR: Unknown RLE code in .debug_rnglists. %s\n",
             esb_get_string(&m));
         simple_err_return_msg_either_action(res,
             esb_get_string(&m));
@@ -181,9 +181,9 @@ print_single_rle(Dwarf_Unsigned lineoffset,
     }
     esb_destructor(&m);
     if (glflags.verbose > 1) {
-        printf(" length %" DW_PR_DUu,entrylen);
+        fprintf(glflags.cstdout," length %" DW_PR_DUu,entrylen);
     }
-    printf("\n");
+    fprintf(glflags.cstdout,"\n");
     return res;
 }
 
@@ -209,7 +209,7 @@ print_entire_rangeslist(Dwarf_Debug dbg,
         Dwarf_Unsigned v1 = 0;
         Dwarf_Unsigned v2 = 0;
         if (!ct) {
-            printf("   RangeEntries (raw)\n");
+            fprintf(glflags.cstdout,"   RangeEntries (raw)\n");
         }
         res = dwarf_get_rnglist_rle(dbg,contextnumber,
             curoffset,endoffset,
@@ -221,7 +221,7 @@ print_entire_rangeslist(Dwarf_Debug dbg,
 
         if (!title_printed) {
             title_printed = TRUE;
-            printf("     Offset      entryname            "
+            fprintf(glflags.cstdout,"     Offset      entryname            "
                 "val1       val2       entrylen\n");
         }
         print_single_rle(curoffset,
@@ -262,7 +262,7 @@ print_raw_all_rnglists(Dwarf_Debug dbg,
     }
     print_sec_name(dbg);
 
-    printf(" Number of rnglists contexts:  %" DW_PR_DUu "\n",
+    fprintf(glflags.cstdout," Number of rnglists contexts:  %" DW_PR_DUu "\n",
         count);
     for (i = 0; i < count ; ++i) {
         Dwarf_Unsigned header_offset = 0;
@@ -293,30 +293,30 @@ print_raw_all_rnglists(Dwarf_Debug dbg,
             esb_destructor(&m);
             return res;
         }
-        printf("  Context number         : %3" DW_PR_DUu "\n",i);
-        printf("   Version               : %3u\n",version);
-        printf("   address size          : %3u\n",address_size);
-        printf("   offset size           : %3u\n",offset_size);
+        fprintf(glflags.cstdout,"  Context number         : %3" DW_PR_DUu "\n",i);
+        fprintf(glflags.cstdout,"   Version               : %3u\n",version);
+        fprintf(glflags.cstdout,"   address size          : %3u\n",address_size);
+        fprintf(glflags.cstdout,"   offset size           : %3u\n",offset_size);
         if (glflags.verbose) {
-            printf("   extension size        : %3u\n",extension_size);
+            fprintf(glflags.cstdout,"   extension size        : %3u\n",extension_size);
         }
-        printf("   segment selector size : %3u\n",
+        fprintf(glflags.cstdout,"   segment selector size : %3u\n",
             segment_selector_size);
-        printf("   offset entry count    : %3" DW_PR_DUu "\n",
+        fprintf(glflags.cstdout,"   offset entry count    : %3" DW_PR_DUu "\n",
             offset_entry_count);
-        printf("   context size in bytes : %3" DW_PR_DUu "\n",
+        fprintf(glflags.cstdout,"   context size in bytes : %3" DW_PR_DUu "\n",
             offset_past_last_rangeentry - header_offset);
         if (glflags.verbose) {
-            printf("   Offset in section     : 0x%"
+            fprintf(glflags.cstdout,"   Offset in section     : 0x%"
                 DW_PR_XZEROS DW_PR_DUx"\n",
                 header_offset);
-            printf("   Offset  of offsets    : 0x%"
+            fprintf(glflags.cstdout,"   Offset  of offsets    : 0x%"
                 DW_PR_XZEROS DW_PR_DUx"\n",
                 offset_of_offset_array);
-            printf("   Offsetof first range  : 0x%"
+            fprintf(glflags.cstdout,"   Offsetof first range  : 0x%"
                 DW_PR_XZEROS DW_PR_DUx"\n",
                 offset_of_first_rangeentry);
-            printf("   Offset past ranges    : 0x%"
+            fprintf(glflags.cstdout,"   Offset past ranges    : 0x%"
                 DW_PR_XZEROS DW_PR_DUx"\n",
                 offset_past_last_rangeentry);
         }

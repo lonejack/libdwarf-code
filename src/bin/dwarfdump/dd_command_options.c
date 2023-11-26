@@ -1070,7 +1070,7 @@ void arg_c_multiple_selection(void)
 /*  Option '-c' with no other letters. See just above. */
 void arg_print_loc(void)
 {
-    printf("The -c option to print .debug_loc (unsafely) "
+    fprintf(glflags.cstdout,"The -c option to print .debug_loc (unsafely) "
         "is ignored\n");
     /*  glflags.gf_loc_flag = TRUE;
         suppress_check_dwarf();  */
@@ -1098,12 +1098,12 @@ void arg_format_producer(void)
     /*  Assume a compiler version to check,
         most likely a substring of a compiler name.  */
     if (!dwoptarg || !dwoptarg[0]) {
-        printf("ERROR: -c<producer> requires "
+        fprintf(glflags.cstdout,"ERROR: -c<producer> requires "
             " a producer string\n");
         glflags.gf_count_major_errors++;
     }
     if (!record_producer(dwoptarg)) {
-        printf("ERROR: Compiler table max %d exceeded, "
+        fprintf(glflags.cstdout,"ERROR: Compiler table max %d exceeded, "
             "limiting the tracked compilers to %d\n",
             COMPILER_TABLE_MAX,COMPILER_TABLE_MAX);
         glflags.gf_count_major_errors++;
@@ -1200,7 +1200,7 @@ void arg_format_limit(void)
     int break_val = 0;
 
     if (!dwoptarg || !dwoptarg[0]) {
-        printf("ERROR The -H option requires a limit value\n");
+        fprintf(glflags.cstdout,"ERROR The -H option requires a limit value\n");
         glflags.gf_count_major_errors++;
     }
     break_val = atoi(dwoptarg);
@@ -1229,7 +1229,7 @@ void arg_print_fission(void)
 void arg_k_multiple_selection(void)
 {
     if (!dwoptarg || !dwoptarg[0]) {
-        printf("ERROR: The -k option requires at least"
+        fprintf(glflags.cstdout,"ERROR: The -k option requires at least"
             " one selection\n");
         glflags.gf_count_major_errors++;
         return;
@@ -1508,7 +1508,7 @@ void arg_ku_multiple_selection(void)
 {
     /* Tag-Tree and Tag-Attr usage */
     if (!dwoptarg || !dwoptarg[0]) {
-        printf("ERROR: The -ku option requires at least"
+        fprintf(glflags.cstdout,"ERROR: The -ku option requires at least"
             " one selection\n");
         glflags.gf_count_major_errors++;
         return;
@@ -1817,20 +1817,20 @@ insert_debuglink_path(char *p)
 
     newarray = (char **)malloc(newcount * sizeof(char *));
     if (!newarray) {
-        printf("ERROR Unable to malloc space for"
+        fprintf(glflags.cstdout,"ERROR Unable to malloc space for"
             " debuglink paths. "
             " malloc %u pointers failed.\n",newcount);
-        printf("Global debuglink path ignored: %s\n",
+        fprintf(glflags.cstdout,"Global debuglink path ignored: %s\n",
             sanitized(p));
         glflags.gf_count_major_errors++;
         return DW_DLV_ERROR;
     }
     pstr = strdup(p);
     if (!pstr) {
-        printf("ERROR Unable to malloc space"
+        fprintf(glflags.cstdout,"ERROR Unable to malloc space"
             " for debuglink path: "
             "count stays at %u\n",curcount);
-        printf("Global debuglink path ignored: %s\n",
+        fprintf(glflags.cstdout,"Global debuglink path ignored: %s\n",
             sanitized(p));
         glflags.gf_count_major_errors++;
         free(newarray);
@@ -1883,7 +1883,7 @@ void arg_search_any(void)
     glflags.search_any_text = makename(dwoptarg);
     tempstr = remove_quotes_pair(glflags.search_any_text);
     if (!tempstr){
-        printf("ERROR regcomp: unable to compile "
+        fprintf(glflags.cstdout,"ERROR regcomp: unable to compile "
             " search expression %s, out of memory\n",
             glflags.search_any_text);
         glflags.gf_count_major_errors++;
@@ -1918,7 +1918,7 @@ void arg_search_match(void)
     glflags.search_match_text = makename(dwoptarg);
     tempstr = remove_quotes_pair(glflags.search_match_text);
     if (!tempstr){
-        printf("ERROR: regcomp unable to compile "
+        fprintf(glflags.cstdout,"ERROR: regcomp unable to compile "
             " search expression match=%s, out of memory\n",
             glflags.search_match_text);
         glflags.gf_count_major_errors++;
@@ -1955,7 +1955,7 @@ void arg_search_regex(void)
     glflags.search_regex_text = makename(dwoptarg);
     tempstr = remove_quotes_pair(glflags.search_regex_text);
     if (!tempstr){
-        printf("regcomp: unable to compile "
+        fprintf(glflags.cstdout,"regcomp: unable to compile "
             " search regular expression %s, out of memory\n",
             glflags.search_regex_text);
         glflags.gf_count_major_errors++;
@@ -1967,7 +1967,7 @@ void arg_search_regex(void)
         res = dd_re_comp(glflags.search_regex_text);
 
         if (res != DW_DLV_OK) {
-            printf("ERROR: regcomp: unable to compile "
+            fprintf(glflags.cstdout,"ERROR: regcomp: unable to compile "
                 " search regular expression %s "
                 "so regex= ignored.\n",
                 glflags.search_regex_text);
@@ -2187,7 +2187,7 @@ arg_file_abi(void)
     const char *abi = 0;
 
     if (!dwoptarg || !dwoptarg[0]) {
-        printf("ERROR *abi= does not allow an empty text\n");
+        fprintf(glflags.cstdout,"ERROR *abi= does not allow an empty text\n");
         glflags.gf_count_major_errors++;
         arg_usage_error = TRUE;
         return;
@@ -2215,7 +2215,7 @@ arg_format_universalnumber(void)
     int res = 0;
 
     if (!dwoptarg || !dwoptarg[0]) {
-        printf("ERROR *groupnumber= does not allow an empty text\n");
+        fprintf(glflags.cstdout,"ERROR *groupnumber= does not allow an empty text\n");
         glflags.gf_count_major_errors++;
         arg_usage_error = TRUE;
         return;
@@ -2242,7 +2242,7 @@ arg_format_groupnumber(void)
     int res = 0;
 
     if (!dwoptarg || !dwoptarg[0]) {
-        printf("ERROR *groupnumber= does not allow an empty text\n");
+        fprintf(glflags.cstdout,"ERROR *groupnumber= does not allow an empty text\n");
         glflags.gf_count_major_errors++;
         arg_usage_error = TRUE;
         return;
@@ -2260,7 +2260,7 @@ static void
 arg_file_line5(void)
 {
     if (!dwoptarg || !dwoptarg[0]) {
-        printf("ERROR *line5= does not allow an empty text\n");
+        fprintf(glflags.cstdout,"ERROR *line5= does not allow an empty text\n");
         glflags.gf_count_major_errors++;
         arg_usage_error = TRUE;
         return;
@@ -2288,7 +2288,7 @@ static void arg_file_name(void)
     const char *path = 0;
 
     if (!dwoptarg || !dwoptarg[0]) {
-        printf("ERROR *name= does not allow an empty text\n");
+        fprintf(glflags.cstdout,"ERROR *name= does not allow an empty text\n");
         glflags.gf_count_major_errors++;
         arg_usage_error = TRUE;
         return;
@@ -2323,7 +2323,7 @@ static void arg_file_tied(void)
     const char *tiedpath = 0;
 
     if (!dwoptarg || !dwoptarg[0]) {
-        printf("ERROR *tied= does not allow an empty text\n");
+        fprintf(glflags.cstdout,"ERROR *tied= does not allow an empty text\n");
         glflags.gf_count_major_errors++;
         arg_usage_error = TRUE;
         return;
@@ -2355,7 +2355,7 @@ static void arg_print_types(void)
 /*  Option not supported */
 static void arg_not_supported(void)
 {
-    printf("ERROR Option -%c is no longer supported:ignored\n",
+    fprintf(glflags.cstdout,"ERROR Option -%c is no longer supported:ignored\n",
         arg_option);
     glflags.gf_count_major_errors++;
 }
@@ -2363,13 +2363,13 @@ static void arg_not_supported(void)
 /* Error message for --add-debuglink-path=path  */
 static void arg_debuglink_path_invalid(void)
 {
-    printf("--add-debuglink-path=<text>\n");
+    fprintf(glflags.cstdout,"--add-debuglink-path=<text>\n");
     /*  Add quotes around string so any invisible chars
         kind of show up */
     if (!dwoptarg || !dwoptarg[0]) {
-        printf("is allowed, not an empty <text>\n");
+        fprintf(glflags.cstdout,"is allowed, not an empty <text>\n");
     } else {
-        printf("is allowed, not  \"%s\"\n",dwoptarg);
+        fprintf(glflags.cstdout,"is allowed, not  \"%s\"\n",dwoptarg);
     }
     glflags.gf_count_major_errors++;
     arg_usage_error = TRUE;
@@ -2378,12 +2378,12 @@ static void arg_debuglink_path_invalid(void)
 /*  Error message for invalid '-S' option. */
 static void arg_search_invalid(void)
 {
-    printf("-S any=<text> or -S match=<text> or"
+    fprintf(glflags.cstdout,"-S any=<text> or -S match=<text> or"
         " -S regex=<text>\n");
     if (!dwoptarg || !dwoptarg[0]) {
-        printf("is allowed, not an empty <text>\n");
+        fprintf(glflags.cstdout,"is allowed, not an empty <text>\n");
     } else {
-        printf("is allowed, not -S %s\n",dwoptarg);
+        fprintf(glflags.cstdout,"is allowed, not -S %s\n",dwoptarg);
     }
     arg_usage_error = TRUE;
     glflags.gf_count_major_errors++;
@@ -2392,19 +2392,19 @@ static void arg_search_invalid(void)
 /*  Error message for invalid '-x' option. */
 static void arg_x_invalid(void)
 {
-    printf("-x name=<path-to-conf> \n");
-    printf(" and  \n");
-    printf("-x abi=<abi-in-conf> \n");
-    printf(" and  \n");
-    printf("-x tied=<tied-file-path> \n");
-    printf(" and  \n");
-    printf("-x line5={std,s2l,orig,orig2l} \n");
-    printf(" and  \n");
-    printf("-x nosanitizestrings \n");
+    fprintf(glflags.cstdout,"-x name=<path-to-conf> \n");
+    fprintf(glflags.cstdout," and  \n");
+    fprintf(glflags.cstdout,"-x abi=<abi-in-conf> \n");
+    fprintf(glflags.cstdout," and  \n");
+    fprintf(glflags.cstdout,"-x tied=<tied-file-path> \n");
+    fprintf(glflags.cstdout," and  \n");
+    fprintf(glflags.cstdout,"-x line5={std,s2l,orig,orig2l} \n");
+    fprintf(glflags.cstdout," and  \n");
+    fprintf(glflags.cstdout,"-x nosanitizestrings \n");
     if (!dwoptarg || !dwoptarg[0]) {
-        printf("is allowed, not an empty text after the =\n");
+        fprintf(glflags.cstdout,"is allowed, not an empty text after the =\n");
     } else {
-        printf("are legal, not -x %s\n", dwoptarg);
+        fprintf(glflags.cstdout,"are legal, not -x %s\n", dwoptarg);
     }
     arg_usage_error = TRUE;
     glflags.gf_count_major_errors++;

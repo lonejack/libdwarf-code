@@ -68,7 +68,7 @@ print_block_entries(
     Dwarf_Unsigned i = 0;
     int res = 0;
 
-    printf("    [   ] offset     Kind        Name\n");
+    fprintf(glflags.cstdout,"    [   ] offset     Kind        Name\n");
 
     for ( ; i < entrycount; ++i) {
         Dwarf_Unsigned offset_in_debug_info = 0;
@@ -89,7 +89,7 @@ print_block_entries(
             return res;
         }
         if (res == DW_DLV_NO_ENTRY) {
-            printf("  ERROR: Block %" DW_PR_DUu
+            fprintf(glflags.cstdout,"  ERROR: Block %" DW_PR_DUu
                 " entry %" DW_PR_DUu
                 " does not exist though entry count"
                 " is %" DW_PR_DUu
@@ -99,12 +99,12 @@ print_block_entries(
             glflags.gf_count_major_errors++;
             return res;
         }
-        printf("    [%3" DW_PR_DUu "] 0x%" DW_PR_XZEROS DW_PR_DUx,
+        fprintf(glflags.cstdout,"    [%3" DW_PR_DUu "] 0x%" DW_PR_XZEROS DW_PR_DUx,
             i,offset_in_debug_info);
         if (!printed_infosize_error_a &&
             offset_in_debug_info >= max_offset) {
             printed_infosize_error_a = TRUE;
-            printf("  ERROR: Block %" DW_PR_DUu
+            fprintf(glflags.cstdout,"  ERROR: Block %" DW_PR_DUu
                 " entry %" DW_PR_DUu
                 " debug_info offset 0x%" DW_PR_DUx
                 " is greater than the debug_info section size"
@@ -114,19 +114,19 @@ print_block_entries(
                 i,offset_in_debug_info,max_offset);
             glflags.gf_count_major_errors++;
         }
-        printf(" %s,%-8s",
+        fprintf(glflags.cstdout," %s,%-8s",
             staticorglobal?"s":"g",
             ikind_types[0x7 & typeofentry]);
-        printf(" %s",sanitized(name));
-        printf("\n");
+        fprintf(glflags.cstdout," %s",sanitized(name));
+        fprintf(glflags.cstdout,"\n");
         if (flag&0xf) {
-            printf("  ERROR: Block %" DW_PR_DUu
+            fprintf(glflags.cstdout,"  ERROR: Block %" DW_PR_DUu
                 " entry %" DW_PR_DUu " flag 0x%x. "
                 "The lower bits are non-zero "
                 "so there may be a corruption problem.",
                 blocknum,i, flag);
             glflags.gf_count_major_errors++;
-            printf("\n");
+            fprintf(glflags.cstdout,"\n");
         }
     }
     return DW_DLV_OK;
@@ -144,14 +144,14 @@ error_report(int errcode,
     const char *text,
     Dwarf_Error *error) {
     if (errcode == DW_DLV_ERROR) {
-        printf("  ERROR: %s"
+        fprintf(glflags.cstdout,"  ERROR: %s"
             ", ignoring other attributes here: %s\n",
             text,
             dwarf_errmsg(*error));
         glflags.gf_count_major_errors++;
         return;
     } else {
-        printf("  ERROR impossible DW_DLV_NO_ENTRY: %s"
+        fprintf(glflags.cstdout,"  ERROR impossible DW_DLV_NO_ENTRY: %s"
             ", ignoringother attributes here. \n",
             text);
     }
@@ -263,7 +263,7 @@ print_selected_attributes(Dwarf_Debug dbg,
             }
         }
         if (print_str) {
-            printf("  %-18s                  : %s\n",
+            fprintf(glflags.cstdout,"  %-18s                  : %s\n",
                 atname,esb_get_string(&m));
         }
         dwarf_dealloc_attribute(attr);
@@ -294,34 +294,34 @@ print_die_basics(Dwarf_Debug dbg,
         &signature,&offset_of_length,&total_byte_length,error);
     if (res != DW_DLV_OK) {
         if (res == DW_DLV_ERROR) {
-            printf("ERROR: Cannot access compilation unit data: %s",
+            fprintf(glflags.cstdout,"ERROR: Cannot access compilation unit data: %s",
                 dwarf_errmsg(*error));
             dwarf_dealloc_error(dbg,*error);
             *error = 0;
         } else {
-            printf("ERROR:  Cannot access compilation unit data"
+            fprintf(glflags.cstdout,"ERROR:  Cannot access compilation unit data"
                 "No such found");
         }
         glflags.gf_count_major_errors++;
         return DW_DLV_OK;
     }
-    printf("  Compilation unit data follows\n");
-    printf("  CU version                          : %d\n",version);
+    fprintf(glflags.cstdout,"  Compilation unit data follows\n");
+    fprintf(glflags.cstdout,"  CU version                          : %d\n",version);
     if (!is_info) {
-        printf("  CU  section is .debug_types");
+        fprintf(glflags.cstdout,"  CU  section is .debug_types");
     }
-    printf("  CU section is dwo?                  : %s\n",
+    fprintf(glflags.cstdout,"  CU section is dwo?                  : %s\n",
         is_dwo?"yes":"no");
-    printf("  CU offset size                      : %u\n",
+    fprintf(glflags.cstdout,"  CU offset size                      : %u\n",
         offset_size);
-    printf("  CU extension size                   : %u\n",
+    fprintf(glflags.cstdout,"  CU extension size                   : %u\n",
         extension_size);
-    printf("  CU address size                     : %u\n",
+    fprintf(glflags.cstdout,"  CU address size                     : %u\n",
         address_size);
-    printf("  CU beginning offset                 : 0x%"
+    fprintf(glflags.cstdout,"  CU beginning offset                 : 0x%"
         DW_PR_XZEROS DW_PR_DUx "\n",
         offset_of_length);
-    printf("  CU total length                     : 0x%"
+    fprintf(glflags.cstdout,"  CU total length                     : 0x%"
         DW_PR_XZEROS DW_PR_DUx "\n",
         total_byte_length);
 
@@ -330,29 +330,29 @@ print_die_basics(Dwarf_Debug dbg,
         char buf[24];
 
         esb_constructor_fixed(&m,buf,sizeof(buf));
-        printf("  CU signature                        : ");
+        fprintf(glflags.cstdout,"  CU signature                        : ");
         format_sig8_string(signature,&m);
-        printf("%s\n", esb_get_string(&m));
+        fprintf(glflags.cstdout,"%s\n", esb_get_string(&m));
         esb_destructor(&m);
     }
     res = dwarf_tag(die,&tag,error);
     if (res != DW_DLV_OK) {
         if (res == DW_DLV_ERROR) {
-            printf("ERROR: Cannot access DIE tag  ERROR: %s\n",
+            fprintf(glflags.cstdout,"ERROR: Cannot access DIE tag  ERROR: %s\n",
                 dwarf_errmsg(*error));
             dwarf_dealloc_error(dbg,*error);
             *error = 0;
         } else {
-            printf("ERROR:  Cannot access DIE tag "
+            fprintf(glflags.cstdout,"ERROR:  Cannot access DIE tag "
                 "No such found\n");
         }
-        printf("\n");
+        fprintf(glflags.cstdout,"\n");
         glflags.gf_count_major_errors++;
     } else {
         const char *actual_tag_name = 0;
 
         actual_tag_name = get_TAG_name(tag,FALSE);
-        printf("  CU die TAG                          : "
+        fprintf(glflags.cstdout,"  CU die TAG                          : "
             "%s\n", actual_tag_name);
     }
     print_selected_attributes(dbg,die,version,offset_size,error);
@@ -371,7 +371,7 @@ note_info_errors(Dwarf_Unsigned i,
         return;
     }
     if (size_of_debug_info_area > max_offset) {
-        printf("  ERROR: Block %" DW_PR_DUu
+        fprintf(glflags.cstdout,"  ERROR: Block %" DW_PR_DUu
             " required size of .debug_info"
             " is %" DW_PR_DUu
             " (0x%" DW_PR_DUx ")"
@@ -386,7 +386,7 @@ note_info_errors(Dwarf_Unsigned i,
         return;
     }
     if (offset_into_debug_info >= max_offset) {
-        printf("  ERROR: Block %" DW_PR_DUu
+        fprintf(glflags.cstdout,"  ERROR: Block %" DW_PR_DUu
             " required offset into .debug_info"
             " is %" DW_PR_DUu
             " (0x%" DW_PR_DUx ")"
@@ -402,7 +402,7 @@ note_info_errors(Dwarf_Unsigned i,
     }
     if ((size_of_debug_info_area+offset_into_debug_info)
         > max_offset) {
-        printf("  ERROR: Block %" DW_PR_DUu
+        fprintf(glflags.cstdout,"  ERROR: Block %" DW_PR_DUu
             " required offset+size into .debug_info"
             " is %" DW_PR_DUu
             " which is greater than the size of "
@@ -440,7 +440,7 @@ print_all_blocks(Dwarf_Debug dbg,
             &size_of_debug_info_area,
             &entrycount,error);
         if (res == DW_DLV_NO_ENTRY) {
-            printf("  ERROR: Block %" DW_PR_DUu
+            fprintf(glflags.cstdout,"  ERROR: Block %" DW_PR_DUu
                 " does not exist though block count"
                 " is %" DW_PR_DUu
                 ", something is wrong\n",
@@ -451,19 +451,19 @@ print_all_blocks(Dwarf_Debug dbg,
         if (res == DW_DLV_ERROR) {
             return res;
         }
-        printf("  Blocknumber                         : "
+        fprintf(glflags.cstdout,"  Blocknumber                         : "
             "%" DW_PR_DUu "\n",i);
-        printf("  Block length                        : "
+        fprintf(glflags.cstdout,"  Block length                        : "
             "%" DW_PR_DUu "\n",block_length);
-        printf("  Version                             : "
+        fprintf(glflags.cstdout,"  Version                             : "
             "%u\n",version);
-        printf("  Offset into .debug_info section     : "
+        fprintf(glflags.cstdout,"  Offset into .debug_info section     : "
             "0x%" DW_PR_XZEROS DW_PR_DUx "\n",offset_into_debug_info);
-        printf("  Size of area in .debug_info section : "
+        fprintf(glflags.cstdout,"  Size of area in .debug_info section : "
             "%" DW_PR_DUu "\n",size_of_debug_info_area);
         note_info_errors(i,max_offset,offset_into_debug_info,
             size_of_debug_info_area);
-        printf("  Number of entries in block          : "
+        fprintf(glflags.cstdout,"  Number of entries in block          : "
             "%" DW_PR_DUu "\n",entrycount);
         /*  The CU offsets appear to be those in
             the executable here. Not in
@@ -477,7 +477,7 @@ print_all_blocks(Dwarf_Debug dbg,
             dbg,offset_into_debug_info,/*is_info = */ TRUE,
             &offset_into_debug_info,error);
         if (res != DW_DLV_OK) {
-            printf("  ERROR: Block %" DW_PR_DUu
+            fprintf(glflags.cstdout,"  ERROR: Block %" DW_PR_DUu
                 " has an invalid .debug_info offset of "
                 "0x%" DW_PR_DUx
                 ", something is wrong\n",
@@ -493,7 +493,7 @@ print_all_blocks(Dwarf_Debug dbg,
             res = dwarf_offdie_b(dbg,offset_into_debug_info,
                 is_info, &die,error);
             if (res != DW_DLV_OK) {
-                printf("  ERROR: Block %" DW_PR_DUu
+                fprintf(glflags.cstdout,"  ERROR: Block %" DW_PR_DUu
                     " cu DIE offset 0x%" DW_PR_DUx
                     " is not a valid DIE offset in .debug_info\n",
                     i, offset_into_debug_info);
@@ -505,7 +505,7 @@ print_all_blocks(Dwarf_Debug dbg,
             } else {
                 /* Always returns DW_DLV_OK */
                 print_die_basics(dbg, die, error);
-                printf("\n");
+                fprintf(glflags.cstdout,"\n");
                 dwarf_dealloc_die(die);
             }
         }
@@ -561,7 +561,7 @@ print_debug_gnu(Dwarf_Debug dbg,
             &head, &block_count,error);
         if (res == DW_DLV_ERROR) {
             glflags.gf_count_major_errors++;
-            printf("ERROR: problem reading %s. %s\n",
+            fprintf(glflags.cstdout,"ERROR: problem reading %s. %s\n",
                 sanitized(esb_get_string(&truename)),
                 dwarf_errmsg(*error));
             dwarf_dealloc_error(dbg,*error);
@@ -570,14 +570,14 @@ print_debug_gnu(Dwarf_Debug dbg,
         } else if (res == DW_DLV_NO_ENTRY) {
             continue;
         }
-        printf("\n%s with %" DW_PR_DUu
+        fprintf(glflags.cstdout,"\n%s with %" DW_PR_DUu
             " blocks of names\n",
             sanitized(esb_get_string(&truename)),
             block_count);
         res = print_all_blocks(dbg,head,block_count,error);
         if (res == DW_DLV_ERROR) {
             glflags.gf_count_major_errors++;
-            printf("ERROR: problem reading %s. %s\n",
+            fprintf(glflags.cstdout,"ERROR: problem reading %s. %s\n",
                 sanitized(esb_get_string(&truename)),
                 dwarf_errmsg(*error));
             dwarf_dealloc_error(dbg,*error);

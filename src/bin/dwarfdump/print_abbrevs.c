@@ -218,24 +218,24 @@ print_one_abbrev_for_cu(Dwarf_Debug dbg,
     }
     if ( glflags.gf_do_print_dwarf) {
         if (glflags.dense) {
-            printf("<%" DW_PR_DUu "><0x%" DW_PR_XZEROS  DW_PR_DUx
+            fprintf(glflags.cstdout,"<%" DW_PR_DUu "><0x%" DW_PR_XZEROS  DW_PR_DUx
                 "><code: %" DW_PR_DUu ">",
                 abbrev_num, offset,abbrev_code);
             if (glflags.verbose) {
-                printf("<length: 0x%" DW_PR_XZEROS  DW_PR_DUx ">",
+                fprintf(glflags.cstdout,"<length: 0x%" DW_PR_XZEROS  DW_PR_DUx ">",
                     length);
             }
-            printf(" %s", tagname);
+            fprintf(glflags.cstdout," %s", tagname);
         }
         else {
-            printf("<%5" DW_PR_DUu "><0x%" DW_PR_XZEROS DW_PR_DUx
+            fprintf(glflags.cstdout,"<%5" DW_PR_DUu "><0x%" DW_PR_XZEROS DW_PR_DUx
                 "><code: %3" DW_PR_DUu ">",
                 abbrev_num, offset, abbrev_code);
             if (glflags.verbose) {
-                printf("<length: 0x%" DW_PR_XZEROS  DW_PR_DUx ">",
+                fprintf(glflags.cstdout,"<length: 0x%" DW_PR_XZEROS  DW_PR_DUx ">",
                     length);
             }
-            printf(" %-27s", tagname);
+            fprintf(glflags.cstdout," %-27s", tagname);
         }
     }
     /* Process specific TAGs specially. */
@@ -260,20 +260,20 @@ print_one_abbrev_for_cu(Dwarf_Debug dbg,
 
         child_name = get_children_name(child_flag,
             dwarf_names_print_on_error);
-        printf(" %s", child_name);
+        fprintf(glflags.cstdout," %s", child_name);
     }
     if (!glflags.dense) {
         if ( glflags.gf_do_print_dwarf) {
-            printf("\n");
+            fprintf(glflags.cstdout,"\n");
         }
     }
     if (abbrev_entry_count < 1) {
         if (tag && glflags.gf_do_print_dwarf) {
-            printf("   This abbreviation code has no entries\n");
+            fprintf(glflags.cstdout,"   This abbreviation code has no entries\n");
         }
         if (length == 0 || length == 1 ) {
             if ( glflags.gf_do_print_dwarf && glflags.dense ) {
-                printf("\n");
+                fprintf(glflags.cstdout,"\n");
             }
             *length_out = length;
             *abbrev_num_out = abbrev_num;
@@ -290,7 +290,7 @@ print_one_abbrev_for_cu(Dwarf_Debug dbg,
     entryarray = calloc(entryarray_size,
         sizeof(struct abbrev_entry_s));
     if (!entryarray) {
-        printf( "%s ERROR:  Malloc of %u abbrev_entry_s"
+        fprintf(glflags.cstdout, "%s ERROR:  Malloc of %u abbrev_entry_s"
             " structs failed. Near section global offset 0x%"
             DW_PR_DUx "  .\n",
         glflags.program_name,entryarray_size,offset);
@@ -335,20 +335,20 @@ print_one_abbrev_for_cu(Dwarf_Debug dbg,
                     impl_const);
             }
             if (glflags.dense) {
-                printf(" <%ld>%s<%s>%s", (unsigned long) off,
+                fprintf(glflags.cstdout," <%ld>%s<%s>%s", (unsigned long) off,
                     get_AT_name(attr,dwarf_names_print_on_error),
                     get_FORM_name((Dwarf_Half) form,
                         dwarf_names_print_on_error),
                     esb_get_string(&m));
             } else if (!esb_string_len(&m))  {
-                printf("       <0x%08lx>              %-28s%s\n",
+                fprintf(glflags.cstdout,"       <0x%08lx>              %-28s%s\n",
                     (unsigned long) off,
                     get_AT_name(attr,
                         dwarf_names_print_on_error),
                     get_FORM_name((Dwarf_Half) form,
                         dwarf_names_print_on_error));
             } else {
-                printf("       <0x%08lx>"
+                fprintf(glflags.cstdout,"       <0x%08lx>"
                     "              %-28s%-20s%s\n",
                     (unsigned long) off,
                     get_AT_name(attr,
@@ -428,7 +428,7 @@ print_one_abbrev_for_cu(Dwarf_Debug dbg,
     *length_out = length;
     *abbrev_num_out = abbrev_num;
     if (glflags.gf_do_print_dwarf && glflags.dense) {
-        printf("\n");
+        fprintf(glflags.cstdout,"\n");
     }
     return DW_DLV_OK;
 }
@@ -465,7 +465,7 @@ print_all_abbrevs_for_cu(Dwarf_Debug dbg,
                     the trailing NUL byte for a CU
                     abbrev set  is missing
                     as of end of section. */
-                printf("ERROR: The final .debug_abbrev "
+                fprintf(glflags.cstdout,"ERROR: The final .debug_abbrev "
                     "abbreviation ends without its required "
                     "final NUL byte. A harmless error at "
                     "section offset 0x%"

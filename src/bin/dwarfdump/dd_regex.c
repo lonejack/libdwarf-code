@@ -126,7 +126,7 @@
 */
 #include <config.h>
 
-#include <stdio.h> /* printf() */
+#include <stdio.h> /* fprintf(glflags.glos,) */
 #include "dwarf.h"
 #include "libdwarf.h"
 #include "dd_regex.h"
@@ -209,7 +209,7 @@ chset(CHAR c)
 #define store(x) do {                                    \
     if ( mp > endpoint){                                 \
         badpat;                                          \
-        printf("ERROR: Pattern too large to store "      \
+        fprintf(glflags.cstdout,"ERROR: Pattern too large to store "      \
             "in regex\n");                               \
         glflags.gf_count_major_errors++;                 \
         return DW_DLV_ERROR;                             \
@@ -267,7 +267,7 @@ dd_re_comp(const char *pat)
     resetbittab();
     if (!pat || !*pat) {
         badpat;
-        printf("ERROR: Empty or NULL not a valid "
+        fprintf(glflags.cstdout,"ERROR: Empty or NULL not a valid "
             "regular expression\n");
         glflags.gf_count_major_errors++;
         return DW_DLV_NO_ENTRY;
@@ -277,7 +277,7 @@ dd_re_comp(const char *pat)
         int b =  inascii(*p);
         if (b != a) {
             badpat;
-            printf("ERROR: Only the ASCII subset of "
+            fprintf(glflags.cstdout,"ERROR: Only the ASCII subset of "
                 " characters are supported in dwarfdump "
                 "regular expressions\n");
             glflags.gf_count_major_errors++;
@@ -344,7 +344,7 @@ dd_re_comp(const char *pat)
             }
             if (!*p) {
                 badpat;
-                printf("ERROR: Regular expression %s missing ]\n",
+                fprintf(glflags.cstdout,"ERROR: Regular expression %s missing ]\n",
                     pat) ;
                 glflags.gf_count_major_errors++;
                 return DW_DLV_ERROR;
@@ -360,7 +360,7 @@ dd_re_comp(const char *pat)
         case '+':               /* match 1 or more.. */
             if (p == pat) {
                 badpat;
-                printf("ERROR: Regular expression %s has empty * +  "
+                fprintf(glflags.cstdout,"ERROR: Regular expression %s has empty * +  "
                     "Closure\n",pat);
                 glflags.gf_count_major_errors++;
                 return DW_DLV_ERROR;
@@ -374,7 +374,7 @@ dd_re_comp(const char *pat)
             case BOL:
             case REF:
                 badpat;
-                printf("ERROR Regular expression %s has illegal "
+                fprintf(glflags.cstdout,"ERROR Regular expression %s has illegal "
                     "* + closure\n",pat);
                 glflags.gf_count_major_errors++;
                 return DW_DLV_ERROR;
@@ -402,7 +402,7 @@ dd_re_comp(const char *pat)
             ++p;
             if (!*p) {
                 badpat;
-                printf("ERROR Regular expression backslash"
+                fprintf(glflags.cstdout,"ERROR Regular expression backslash"
                     " missing its operand. Erroneous regex\n");
                 glflags.gf_count_major_errors++;
                 return DW_DLV_ERROR;
@@ -491,7 +491,7 @@ dd_re_exec(char *lp)
     }
     case END:            /* munged automaton. fail always */
         badpat;
-        printf("ERROR in in regex automaton. "
+        fprintf(glflags.cstdout,"ERROR in in regex automaton. "
             "END out of place\n");
         glflags.gf_count_major_errors++;
         return DW_DLV_ERROR;
@@ -671,7 +671,7 @@ dd_pmatch(const char *lp, CHAR *ap,char **end_ptr,
                 break;
             default:
                 badpat;
-                printf("ERROR Regular expression has illegal "
+                fprintf(glflags.cstdout,"ERROR Regular expression has illegal "
                     "closure: bad nfa\n");
                 glflags.gf_count_major_errors++;
                 return DW_DLV_ERROR;
@@ -704,7 +704,7 @@ dd_pmatch(const char *lp, CHAR *ap,char **end_ptr,
             return DW_DLV_NO_ENTRY;
         default:
             badpat;
-            printf("ERROR Regular expression has illegal "
+            fprintf(glflags.cstdout,"ERROR Regular expression has illegal "
                 "dd_re_exec: bad nfa.\n");
             glflags.gf_count_major_errors++;
             return DW_DLV_ERROR;
@@ -719,8 +719,8 @@ dd_pmatch(const char *lp, CHAR *ap,char **end_ptr,
 static void
 symbolic(char *s)
 {
-    printf("pattern: %s\n", s);
-    printf("nfacode:\n");
+    fprintf(glflags.glos,"pattern: %s\n", s);
+    fprintf(glflags.glos,"nfacode:\n");
     nfadump(nfa);
 }
 
@@ -732,7 +732,7 @@ nfadump(CHAR *ap)
     while (*ap != END)
         switch(*ap++) {
         case CLO:
-            printf("CLOSURE");
+            fprintf(glflags.glos,"CLOSURE");
             nfadump(ap);
             switch(*ap) {
             case CHR:
@@ -749,31 +749,31 @@ nfadump(CHAR *ap)
             ap += n;
             break;
         case CHR:
-            printf("\tCHR %c\n",*ap++);
+            fprintf(glflags.glos,"\tCHR %c\n",*ap++);
             break;
         case ANY:
-            printf("\tANY .\n");
+            fprintf(glflags.glos,"\tANY .\n");
             break;
         case BOL:
-            printf("\tBOL -\n");
+            fprintf(glflags.glos,"\tBOL -\n");
             break;
         case EOL:
-            printf("\tEOL -\n");
+            fprintf(glflags.glos,"\tEOL -\n");
             break;
         case CCL:
-            printf("\tCCL [");
+            fprintf(glflags.glos,"\tCCL [");
             for (n = 0; n < MAXCHR; n++)
                 if (isinset(ap,(CHAR)n)) {
                     if (n < ' ')
-                        printf("^%c", n ^ 0x040);
+                        fprintf(glflags.glos,"^%c", n ^ 0x040);
                     else
-                        printf("%c", n);
+                        fprintf(glflags.glos,"%c", n);
                 }
-            printf("]\n");
+            fprintf(glflags.glos,"]\n");
             ap += BITBLK;
             break;
         default:
-            printf("bad nfa. opcode %o\n", ap[-1]);
+            fprintf(glflags.glos,"bad nfa. opcode %o\n", ap[-1]);
             exit(EXIT_FAILURE);
             break;
         }

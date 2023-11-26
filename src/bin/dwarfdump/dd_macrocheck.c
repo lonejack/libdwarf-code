@@ -345,7 +345,7 @@ warnprimeandsecond(struct Macrocheck_Map_Entry_s *r)
         ++failcount;
 #endif
     glflags.gf_count_major_errors++;
-    printf("\nERROR: For offset "
+    fprintf(glflags.cstdout,"\nERROR: For offset "
         "0x%" DW_PR_XZEROS DW_PR_DUx
         " %" DW_PR_DUu
         " there is a nonzero primary count of "
@@ -395,7 +395,7 @@ print_macrocheck_statistics(const char *name,void **tsbase,
         ++failcount;
 #endif
         glflags.gf_count_major_errors++;
-        printf("\nERROR:  Macro checking %s: "
+        fprintf(glflags.cstdout,"\nERROR:  Macro checking %s: "
             "unable to allocate %" DW_PR_DUu "pointers\n",
             name,
             count);
@@ -403,14 +403,14 @@ print_macrocheck_statistics(const char *name,void **tsbase,
         return DW_DLV_OK;
     }
     dwarf_twalk(*tsbase,macro_walk_to_array);
-    printf("  Macro unit count %s: %" DW_PR_DUu "\n",name,count);
+    fprintf(glflags.cstdout,"  Macro unit count %s: %" DW_PR_DUu "\n",name,count);
     qsort(mac_as_array,
         count,sizeof(struct Macrocheck_Map_Entry_s *),
         qsort_compare);
     for (i = 0; i < count ; ++i) {
         struct Macrocheck_Map_Entry_s *r = mac_as_array[i];
 #if 0
-        printf("debugging: i %u off 0x%x len 0x%x printed? %u "
+        fprintf(glflags.glos,"debugging: i %u off 0x%x len 0x%x printed? %u "
             " ref prim: %u  sec: %u\n",
             (unsigned)i,
             (unsigned)r->mp_key,
@@ -431,7 +431,7 @@ print_macrocheck_statistics(const char *name,void **tsbase,
             ++failcount;
 #endif
             glflags.gf_count_major_errors++;
-            printf("\nERROR: For offset 0x%" DW_PR_XZEROS DW_PR_DUx
+            fprintf(glflags.cstdout,"\nERROR: For offset 0x%" DW_PR_XZEROS DW_PR_DUx
                 " %" DW_PR_DUu
                 " there is a primary reference count of "
                 "0x%"  DW_PR_XZEROS DW_PR_DUx
@@ -453,13 +453,13 @@ print_macrocheck_statistics(const char *name,void **tsbase,
         mac_as_array[0]->mp_key +
         mac_as_array[0]->mp_len;
     laststart = mac_as_array[0]->mp_key;
-    printf("  Macro Offsets start at 0x%" DW_PR_XZEROS DW_PR_DUx
+    fprintf(glflags.cstdout,"  Macro Offsets start at 0x%" DW_PR_XZEROS DW_PR_DUx
         " and end at 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
         lowest, highest);
     for (i = 1; i < count ; ++i) {
         struct Macrocheck_Map_Entry_s *r = mac_as_array[i];
 #if 0
-        printf("debugging i %u off 0x%x len 0x%x\n",
+        fprintf(glflags.glos,"debugging i %u off 0x%x len 0x%x\n",
             (unsigned)i,
             (unsigned)r->mp_key,
             (unsigned)r->mp_len);
@@ -472,7 +472,7 @@ print_macrocheck_statistics(const char *name,void **tsbase,
             ++failcount;
 #endif
             glflags.gf_count_major_errors++;
-            printf(" ERROR: For offset 0x%" DW_PR_XZEROS DW_PR_DUx
+            fprintf(glflags.cstdout," ERROR: For offset 0x%" DW_PR_XZEROS DW_PR_DUx
                 " %" DW_PR_DUu
                 " there is a crazy overlap with the previous "
                 "end offset of "
@@ -500,7 +500,7 @@ print_macrocheck_statistics(const char *name,void **tsbase,
 #ifdef TESTING
         ++failcount;
 #endif
-        printf(" ERROR: For offset 0x%" DW_PR_XZEROS DW_PR_DUx
+        fprintf(glflags.cstdout," ERROR: For offset 0x%" DW_PR_XZEROS DW_PR_DUx
             " %" DW_PR_DUu
             " there is an overlap with the end of section "
             "0x%"  DW_PR_XZEROS DW_PR_DUx
@@ -511,21 +511,21 @@ print_macrocheck_statistics(const char *name,void **tsbase,
         wholegap += (section_size - lastend);
     }
     if (wholegap) {
-        printf("  Macro Offsets internal unused space: "
+        fprintf(glflags.cstdout,"  Macro Offsets internal unused space: "
             "0x%" DW_PR_XZEROS DW_PR_DUx
             "\n",
             internalgap);
-        printf("  Macro Offsets total    unused space: "
+        fprintf(glflags.cstdout,"  Macro Offsets total    unused space: "
             "0x%" DW_PR_XZEROS DW_PR_DUx
             "\n",
             wholegap);
     }
     if (macfile_stack_max_seen)  {
-        printf("Maximum nest depth of DW_MACRO_start_file: %u\n",
+        fprintf(glflags.cstdout,"Maximum nest depth of DW_MACRO_start_file: %u\n",
             macfile_stack_max_seen-1);
     }
     if (macro_import_stack_max_seen)  {
-        printf("Maximum nest depth of DW_MACRO_import    : %u\n",
+        fprintf(glflags.cstdout,"Maximum nest depth of DW_MACRO_import    : %u\n",
             macro_import_stack_max_seen-1);
     }
     free (mac_as_array);
@@ -549,10 +549,10 @@ print_macro_import_stack(void)
 {
     unsigned i = 0;
 
-    printf("Macro Stack Depth: %u\n",
+    fprintf(glflags.cstdout,"Macro Stack Depth: %u\n",
         macro_import_stack_next_to_use);
     for ( ; i <  macro_import_stack_next_to_use; ++i) {
-        printf("Macro Stack[%u] "
+        fprintf(glflags.cstdout,"Macro Stack[%u] "
             "MOFF=0x%" DW_PR_XZEROS DW_PR_DUx "\n",
             i,macro_import_stack[i]);
     }
@@ -566,7 +566,7 @@ macro_import_stack_push(Dwarf_Unsigned offset)
 {
     if (macro_import_stack_next_to_use >=
         MACRO_IMPORT_STACK_DEPTH) {
-        printf("ERROR: The macro_import_stack has exceeded "
+        fprintf(glflags.cstdout,"ERROR: The macro_import_stack has exceeded "
             "its maximum of %d\n",MACRO_IMPORT_STACK_DEPTH);
         print_macro_import_stack();
         glflags.gf_count_major_errors++;
@@ -587,7 +587,7 @@ int
 macro_import_stack_pop(void)
 {
     if (!macro_import_stack_next_to_use) {
-        printf("ERROR: The macro_import_stack is"
+        fprintf(glflags.cstdout,"ERROR: The macro_import_stack is"
             " empty and the attempted pop() is "
             "impossible. A dwarfdump bug.\n");
         glflags.gf_count_major_errors++;

@@ -23,6 +23,7 @@ Copyright (C) 2017-2020 David Anderson. All Rights Reserved.
   Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
   Boston MA 02110-1301, USA.
 */
+#include <stdio.h>
 
 #ifndef GLFLAGS_H
 #define GLFLAGS_H
@@ -390,6 +391,9 @@ struct glflags_s {
 
     /*  Check errors. */
     int check_error;
+
+    /* designed output stream */
+    FILE* cstdout;
 };
 
 extern struct glflags_s glflags;

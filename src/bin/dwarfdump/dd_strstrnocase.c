@@ -104,7 +104,7 @@ test(const  char *t1, const char *t2,int resexp)
     if (res == resexp) {
         return;
     }
-    printf("Error,mismatch %s and %s.  Expected %d got %d\n",
+    fprintf(glflags.glos,"Error,mismatch %s and %s.  Expected %d got %d\n",
         t1,t2,resexp,res);
 }
 

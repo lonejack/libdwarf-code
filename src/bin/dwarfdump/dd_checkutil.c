@@ -52,7 +52,7 @@ Portions Copyright (C) 2011-2019 David Anderson. All Rights Reserved.
 
 #include <config.h>
 
-#include <stdio.h>  /* printf() */
+#include <stdio.h>  /* fprintf(glflags.glos,) */
 #include <stdlib.h> /* calloc() free() */
 #include <string.h> /* strcmp() */
 
@@ -97,7 +97,7 @@ kindstring(int kind)
         break;
     default:
         name = 0;
-        printf("ERROR BucketGroup unknown kind of %d. Ignored\n",
+        fprintf(glflags.cstdout,"ERROR BucketGroup unknown kind of %d. Ignored\n",
             kind);
         glflags.gf_count_major_errors++;
     }
@@ -124,7 +124,7 @@ ReleaseBucketGroup(Bucket_Group *pBucketGroup)
     Bucket *pNext = 0;
 
     if (!pBucketGroup) {
-        printf("ERROR ReleaseBucketGroup passed NULL. Ignored\n");
+        fprintf(glflags.cstdout,"ERROR ReleaseBucketGroup passed NULL. Ignored\n");
         glflags.gf_count_major_errors++;
         return;
     }
@@ -143,7 +143,7 @@ ResetBucketGroup(Bucket_Group *pBucketGroup)
     Bucket *pBucket = 0;
 
     if (!pBucketGroup) {
-        printf("ERROR ResetBucketGroup passed NULL. Ignored\n");
+        fprintf(glflags.cstdout,"ERROR ResetBucketGroup passed NULL. Ignored\n");
         glflags.gf_count_major_errors++;
         return;
     }
@@ -160,7 +160,7 @@ ResetSentinelBucketGroup(Bucket_Group *pBucketGroup)
 {
     /* Sanity checks */
     if (!pBucketGroup) {
-        printf("ERROR ResetSentinelBucketGroup passed NULL."
+        fprintf(glflags.cstdout,"ERROR ResetSentinelBucketGroup passed NULL."
             " Ignored\n");
         glflags.gf_count_major_errors++;
         return;
@@ -188,7 +188,7 @@ DumpFullBucketGroup(Bucket_Group *pBucketGroup)
     const char *kindstr = 0;
 
     if (!pBucketGroup) {
-        printf("ERROR BucketGroup passed in NULL. Ignored\n");
+        fprintf(glflags.cstdout,"ERROR BucketGroup passed in NULL. Ignored\n");
         glflags.gf_count_major_errors++;
         return;
     }
@@ -196,7 +196,7 @@ DumpFullBucketGroup(Bucket_Group *pBucketGroup)
     if (!kindstr) {
         return;
     }
-    printf("\nBucket Group %s index %lu"
+    fprintf(glflags.cstdout,"\nBucket Group %s index %lu"
         " [lower 0x%" DW_PR_DUx " upper 0x%" DW_PR_DUx "]\n",
         kindstr,
         pBucketGroup->bg_number,
@@ -205,13 +205,13 @@ DumpFullBucketGroup(Bucket_Group *pBucketGroup)
     for (pBucket = pBucketGroup->pHead; pBucket && pBucket->nEntries;
         pBucket = pBucket->pNext) {
 
-        printf("LowPC & HighPC records for bucket %d, at index %lu"
+        fprintf(glflags.cstdout,"LowPC & HighPC records for bucket %d, at index %lu"
             "\n",
             nBucketNo++,
             pBucket->b_number);
         for (nIndex = 0; nIndex < pBucket->nEntries; ++nIndex) {
             pBucketData = &pBucket->Entries[nIndex];
-            printf("[%06d] Key = 0x%08" DW_PR_DUx
+            fprintf(glflags.cstdout,"[%06d] Key = 0x%08" DW_PR_DUx
                 ", Base = 0x%08" DW_PR_DUx
                 ", Low = 0x%08" DW_PR_DUx ", High = 0x%08" DW_PR_DUx
                 ", Flag = %d, Name = '%s'\n",
@@ -246,7 +246,7 @@ AddEntryIntoBucketGroup(Bucket_Group *pBucketGroup,
     data.high = high;
 
     if (!pBucketGroup) {
-        printf("ERROR AddEntryIntoBucketGroup passed NULL."
+        fprintf(glflags.cstdout,"ERROR AddEntryIntoBucketGroup passed NULL."
             " Ignored\n");
         glflags.gf_count_major_errors++;
         return;
@@ -309,7 +309,7 @@ DeleteKeyInBucketGroup(Bucket_Group *pBucketGroup,Dwarf_Addr key)
     Bucket_Data *pBucketData = 0;
 
     if (!pBucketGroup) {
-        printf("ERROR DeleteKeyInBucketGroup passed NULL. "
+        fprintf(glflags.cstdout,"ERROR DeleteKeyInBucketGroup passed NULL. "
             "Ignored\n");
         glflags.gf_count_major_errors++;
         return FALSE;
@@ -354,7 +354,7 @@ FindAddressInBucketGroup(Bucket_Group *pBucketGroup,
     Bucket_Data *pBucketData = 0;
 
     if (!pBucketGroup) {
-        printf("ERROR FindAdressinBucketGroup passed NULL. "
+        fprintf(glflags.cstdout,"ERROR FindAdressinBucketGroup passed NULL. "
             "Ignored\n");
         glflags.gf_count_major_errors++;
         return FALSE;
@@ -385,7 +385,7 @@ Bucket_Data *FindDataInBucketGroup(Bucket_Group *pBucketGroup,
     Bucket_Data *pBucketData = 0;
 
     if (!pBucketGroup) {
-        printf("ERROR FindDataInBucketGroup passed NULL. Ignored\n");
+        fprintf(glflags.cstdout,"ERROR FindDataInBucketGroup passed NULL. Ignored\n");
         glflags.gf_count_major_errors++;
         return 0;
     }
@@ -432,7 +432,7 @@ Bucket_Data *FindKeyInBucketGroup(Bucket_Group *pBucketGroup,
 
     /* Sanity checks */
     if (!pBucketGroup) {
-        printf("ERROR FindKeyInBucketGroup passed NULL. Ignored\n");
+        fprintf(glflags.cstdout,"ERROR FindKeyInBucketGroup passed NULL. Ignored\n");
         glflags.gf_count_major_errors++;
         return 0;
     }
@@ -461,7 +461,7 @@ FindNameInBucketGroup(Bucket_Group *pBucketGroup,char *name)
     Bucket_Data *pBucketData = 0;
 
     if (!pBucketGroup) {
-        printf("ERROR FindnameInBucketGroup passed NULL. Ignored\n");
+        fprintf(glflags.cstdout,"ERROR FindnameInBucketGroup passed NULL. Ignored\n");
         glflags.gf_count_major_errors++;
         return 0;
     }
@@ -493,7 +493,7 @@ IsValidInBucketGroup(Bucket_Group *pBucketGroup,Dwarf_Addr address)
     int nIndex = 0;
 
     if (!pBucketGroup) {
-        printf("ERROR IsValidInBucketGroup passed NULL. Ignored\n");
+        fprintf(glflags.cstdout,"ERROR IsValidInBucketGroup passed NULL. Ignored\n");
         glflags.gf_count_major_errors++;
         return FALSE;
     }
@@ -521,7 +521,7 @@ void
 ResetLimitsBucketSet(Bucket_Group *pBucketGroup)
 {
     if (!pBucketGroup) {
-        printf("ERROR ResetLimitsBucketSet passed NULL. Ignored\n");
+        fprintf(glflags.cstdout,"ERROR ResetLimitsBucketSet passed NULL. Ignored\n");
         glflags.gf_count_major_errors++;
         return;
     }
@@ -539,7 +539,7 @@ SetLimitsBucketGroup(Bucket_Group *pBucketGroup,
     Dwarf_Addr lower,Dwarf_Addr upper)
 {
     if (!pBucketGroup) {
-        printf("ERROR SetLimitsBucketGroup passed NULL. Ignored\n");
+        fprintf(glflags.cstdout,"ERROR SetLimitsBucketGroup passed NULL. Ignored\n");
         glflags.gf_count_major_errors++;
         return;
     }

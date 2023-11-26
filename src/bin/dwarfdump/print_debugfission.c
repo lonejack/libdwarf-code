@@ -158,25 +158,25 @@ print_debugfission_index(Dwarf_Debug dbg,const char *type,
         esb_constructor_fixed(&truename,buf,sizeof(buf));
         get_true_section_name(dbg,section_name,
             &truename,TRUE);
-        printf("\n%s\n",sanitized(esb_get_string(&truename)));
+        fprintf(glflags.cstdout,"\n%s\n",sanitized(esb_get_string(&truename)));
         esb_destructor(&truename);
     }
-    printf("  Version:           : %" DW_PR_DUu "\n",
+    fprintf(glflags.cstdout,"  Version:           : %" DW_PR_DUu "\n",
         version_number);
-    printf("  Number of columns N: %" DW_PR_DUu "\n",
+    fprintf(glflags.cstdout,"  Number of columns N: %" DW_PR_DUu "\n",
         offsets_count);
-    printf("  number of entries U: %" DW_PR_DUu  "\n",
+    fprintf(glflags.cstdout,"  number of entries U: %" DW_PR_DUu  "\n",
         units_count);
-    printf("  Number of slots   S: %" DW_PR_DUu "\n",
+    fprintf(glflags.cstdout,"  Number of slots   S: %" DW_PR_DUu "\n",
         hash_slots_count);
     {
         unsigned n = 0;
         Dwarf_Unsigned sect_num;
         const char *name = 0;
 
-        printf("\n");
-        printf("Columns index to section id and name \n");
-        printf("  [ ] id       name\n");
+        fprintf(glflags.cstdout,"\n");
+        fprintf(glflags.cstdout,"Columns index to section id and name \n");
+        fprintf(glflags.cstdout,"  [ ] id       name\n");
         for ( ; n < offsets_count; ++n) {
             res = dwarf_get_xu_section_names(xuhdr,
                 n,&sect_num,&name,err);
@@ -184,16 +184,16 @@ print_debugfission_index(Dwarf_Debug dbg,const char *type,
                 dwarf_dealloc_xu_header(xuhdr);
                 return res;
             } if (res == DW_DLV_NO_ENTRY) {
-                printf("  [%u] unused\n",n);
+                fprintf(glflags.cstdout,"  [%u] unused\n",n);
             } else {
-                printf("  [%u] %" DW_PR_DUu "        %s\n",n,
+                fprintf(glflags.cstdout,"  [%u] %" DW_PR_DUu "        %s\n",n,
                     sect_num,name);
             }
         }
     }
     if (hash_slots_count > 0) {
-        printf("\n");
-        printf("   slot      hash                index\n");
+        fprintf(glflags.cstdout,"\n");
+        fprintf(glflags.cstdout,"   slot      hash                index\n");
     }
     {
         /*  For h < S */
@@ -242,7 +242,7 @@ print_debugfission_index(Dwarf_Debug dbg,const char *type,
 
                     esb_constructor(&hashhexstring);
                     format_sig8_string(&hashval,&hashhexstring);
-                    printf("  [%4" DW_PR_DUu "] %s"
+                    fprintf(glflags.cstdout,"  [%4" DW_PR_DUu "] %s"
                         " %8" DW_PR_DUu  " %s\n",
                         h,
                         esb_get_string(&hashhexstring),
@@ -257,14 +257,14 @@ print_debugfission_index(Dwarf_Debug dbg,const char *type,
 
                 esb_constructor(&hashhexstring);
                 format_sig8_string(&hashval,&hashhexstring);
-                printf("  [%4" DW_PR_DUu "] %s"
+                fprintf(glflags.cstdout,"  [%4" DW_PR_DUu "] %s"
                     " %8" DW_PR_DUu  "\n",
                     h,
                     esb_get_string(&hashhexstring),
                     index);
                 esb_destructor(&hashhexstring);
             }
-            printf("    [r,c]              section   "
+            fprintf(glflags.cstdout,"    [r,c]              section   "
                 "  offset             size\n");
             for (col = 0; col < offsets_count; col++) {
                 Dwarf_Unsigned off = 0;
@@ -315,7 +315,7 @@ print_debugfission_index(Dwarf_Debug dbg,const char *type,
                     dwarf_dealloc_xu_header(xuhdr);
                     return res;
                 }
-                printf("    [%1" DW_PR_DUu ",%1" DW_PR_DUu "] %20s "
+                fprintf(glflags.cstdout,"    [%1" DW_PR_DUu ",%1" DW_PR_DUu "] %20s "
                     "0x%" DW_PR_XZEROS DW_PR_DUx
                     " (%8" DW_PR_DUu ") "
                     "0x%" DW_PR_XZEROS DW_PR_DUx

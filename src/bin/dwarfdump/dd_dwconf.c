@@ -185,7 +185,7 @@ is_this_text_file(FILE *stream)
     bytesread = fread(buf,1,sizeof(buf),stream);
     if (bytesread != sizeof(buf)) {
         if (bytesread < 100) {
-            printf("ERROR: Found the configure file is too small to "
+            fprintf(glflags.cstdout,"ERROR: Found the configure file is too small to "
                 "be reasonable. Add a few comment lines "
                 "to enlarge it from %lu bytes to 100\n",
                 (unsigned long)bytesread);
@@ -209,14 +209,14 @@ is_this_text_file(FILE *stream)
         if (c >= ' ' && c <= '}') {
             continue;
         } else {
-            printf("Found non-ascii character 0x%02x "
+            fprintf(glflags.cstdout,"Found non-ascii character 0x%02x "
                 "and only ascii allowed in dwarfdump.conf\n",
                 c);
             return FALSE;
         }
     }
     if (maxlinelen > 100) {
-        printf("ERROR: Found maximum configure file"
+        fprintf(glflags.cstdout,"ERROR: Found maximum configure file"
             " line length of %lu"
             " which seems too long to be reasonable\n",
             maxlinelen);
@@ -428,7 +428,7 @@ find_a_file(const char *named_file,
                 lname="<Impossible file name string>";
             }
             if (glflags.gf_show_dwarfdump_conf) {
-                printf("dwarfdump looking for"
+                fprintf(glflags.cstdout,"dwarfdump looking for"
                     " configuration as: \"%s\"\n", lname);
             }
             fin = fopen(lname, type);
@@ -467,7 +467,7 @@ find_a_file(const char *named_file,
             if (!lname || !strlen(lname)) {
                 lname="<Impossible name  string>";
             }
-            printf("dwarfdump looking for"
+            fprintf(glflags.cstdout,"dwarfdump looking for"
                 " configuration as: \"%s\"\n", lname);
         }
         fin = fopen(lname, type);
@@ -525,7 +525,7 @@ ensure_has_no_more_tokens(char *cp,
 
     get_token(cp, &tok);
     if (tok.tk_len > 0) {
-        printf("dwarfdump.conf error: "
+        fprintf(glflags.cstdout,"dwarfdump.conf error: "
             "extra characters after command operands, found "
             "\"%s\" in %s line %lu\n", tok.tk_data, fname, lineno);
         ++errcount;
@@ -567,7 +567,7 @@ find_abi_start(FILE * stream, const char *abi_name,
                     matching historical behavior. */
                 glflags.gf_expr_ops_joined = TRUE;
             } else {
-                printf("ERROR: option command %s is not understood"
+                fprintf(glflags.cstdout,"ERROR: option command %s is not understood"
                     " giving up\n",tok.tk_data);
                 ++errcount;
                 return FOUND_ERROR;
@@ -630,7 +630,7 @@ get_token(char *cp, struct token_s *outtok)
         char *src = build_string(tlen, lcp);
         if (!src) {
             if (!outofmem) {
-                printf("Dwarfdump out of memory reading "
+                fprintf(glflags.cstdout,"Dwarfdump out of memory reading "
                     "dwarfdump.conf and will likely not work.\n");
             }
             outofmem = TRUE;
@@ -699,14 +699,14 @@ parseoption(char *cp, const char *fname,unsigned long lineno,
     cp = skipwhite(cp);
     get_token(cp, &tok);
     if (!tok.tk_data) {
-        printf("ERROR: empty option: command is ignored");
+        fprintf(glflags.cstdout,"ERROR: empty option: command is ignored");
         return FALSE;
     }
     ensure_has_no_more_tokens(cp + tok.tk_len, fname, lineno);
     if (!strcmp(tok.tk_data,"--format-expr-ops-joined")) {
         glflags.gf_expr_ops_joined = TRUE;
     } else {
-        printf("ERROR: option command %s is not understood"
+        fprintf(glflags.cstdout,"ERROR: option command %s is not understood"
             " and is ignored",tok.tk_data);
         return FALSE;
     }
@@ -729,7 +729,7 @@ parsebeginabi(char *cp, const char *fname, const char *abiname,
     get_token(cp, &tok);
     if (tok.tk_len != abinamelen ||
         strncmp(cp, abiname, abinamelen)) {
-        printf("dwarfdump internal error: "
+        fprintf(glflags.cstdout,"dwarfdump internal error: "
             "mismatch \"%s\" with \"%s\"   \"%s\" line %lu\n",
             cp, tok.tk_data, fname, lineno);
         ++errcount;
@@ -760,7 +760,7 @@ add_to_reg_table(struct dwconf_s *conf,
             conf->cf_named_regs_table_size * sizeof(char *);
         newregs = realloc(conf->cf_regs, newtabsize);
         if (!newregs) {
-            printf("dwarfdump: unable to malloc table %lu bytes. "
+            fprintf(glflags.cstdout,"dwarfdump: unable to malloc table %lu bytes. "
                 " %s line %lu\n", newtabsize, fname, lineno);
             exit(EXIT_FAILURE);
         }
@@ -787,7 +787,7 @@ make_a_number(char *cmd, const char *filename, unsigned long
 
     val = strtoul(tok->tk_data, &endnum, 0);
     if (val == 0 && endnum == (tok->tk_data)) {
-        printf("dwarfdump.conf error: "
+        fprintf(glflags.cstdout,"dwarfdump.conf error: "
             "%s missing register number (\"%s\" "
             "not valid)  %s line %lu\n",
             cmd, tok->tk_data, filename, lineno);
@@ -795,7 +795,7 @@ make_a_number(char *cmd, const char *filename, unsigned long
         return FALSE;
     }
     if (endnum != (tok->tk_data + tok->tk_len)) {
-        printf("dwarfdump.conf error: "
+        fprintf(glflags.cstdout,"dwarfdump.conf error: "
             "%s Missing register number (\"%s\" "
             "not valid)  %s line %lu\n",
             cmd, tok->tk_data, filename, lineno);
@@ -825,7 +825,7 @@ parsereg(char *cp, const char *fname, unsigned long lineno,
     cp = get_token(cp, &tokreg);
     cp = get_token(cp, &regnum);
     if (tokreg.tk_len == 0) {
-        printf("dwarfdump.conf error: "
+        fprintf(glflags.cstdout,"dwarfdump.conf error: "
             "reg: missing register name  %s line %lu",
             fname, lineno);
         ++errcount;
@@ -833,7 +833,7 @@ parsereg(char *cp, const char *fname, unsigned long lineno,
 
     }
     if (regnum.tk_len == 0) {
-        printf("dwarfdump.conf error: "
+        fprintf(glflags.cstdout,"dwarfdump.conf error: "
             "reg: missing register number  %s line %lu",
             fname, lineno);
         ++errcount;
@@ -874,7 +874,7 @@ parseframe_interface(char *cp,
     cp = cp + clen + 1;
     cp = get_token(cp, &tok);
     if (tok.tk_len == 0) {
-        printf("dwarfdump.conf error: "
+        fprintf(glflags.cstdout,"dwarfdump.conf error: "
             "%s missing interface number %s line %lu",
             comtab->name, fname, lineno);
         ++errcount;
@@ -888,7 +888,7 @@ parseframe_interface(char *cp,
         return FALSE;
     }
     if (val != 2 && val != 3) {
-        printf("dwarfdump.conf error: "
+        fprintf(glflags.cstdout,"dwarfdump.conf error: "
             "%s only interface numbers 2 or 3 are allowed, "
             " not %lu. %s line %lu",
             comtab->name, val, fname, lineno);
@@ -918,7 +918,7 @@ parsecfa_reg(char *cp, const char *fname, unsigned long lineno,
     cp = cp + clen + 1;
     cp = get_token(cp, &tok);
     if (tok.tk_len == 0) {
-        printf("dwarfdump.conf error: "
+        fprintf(glflags.cstdout,"dwarfdump.conf error: "
             "%s missing cfa_reg number %s line %lu",
             comtab->name, fname, lineno);
         ++errcount;
@@ -953,7 +953,7 @@ parseinitial_reg_value(char *cp, const char *fname,
     cp = cp + clen + 1;
     cp = get_token(cp, &tok);
     if (tok.tk_len == 0) {
-        printf("dwarfdump.conf error: "
+        fprintf(glflags.cstdout,"dwarfdump.conf error: "
             "%s missing initial reg value %s line %lu",
             comtab->name, fname, lineno);
         ++errcount;
@@ -986,7 +986,7 @@ parsesame_val_reg(char *cp, const char *fname,
     cp = cp + clen + 1;
     cp = get_token(cp, &tok);
     if (tok.tk_len == 0) {
-        printf("dwarfdump.conf error: "
+        fprintf(glflags.cstdout,"dwarfdump.conf error: "
             "%s missing same_reg value %s line %lu",
             comtab->name, fname, lineno);
         ++errcount;
@@ -1019,7 +1019,7 @@ parseundefined_val_reg(char *cp, const char *fname,
     cp = cp + clen + 1;
     cp = get_token(cp, &tok);
     if (tok.tk_len == 0) {
-        printf("dwarfdump.conf error: "
+        fprintf(glflags.cstdout,"dwarfdump.conf error: "
             "%s missing undefined_reg value %s line %lu",
             comtab->name, fname, lineno);
         ++errcount;
@@ -1054,7 +1054,7 @@ parsereg_table_size(char *cp, const char *fname, unsigned long lineno,
     cp = cp + clen + 1;
     cp = get_token(cp, &tok);
     if (tok.tk_len == 0) {
-        printf("dwarfdump.conf error: "
+        fprintf(glflags.cstdout,"dwarfdump.conf error: "
             "%s missing reg table size value %s line %lu",
             comtab->name, fname, lineno);
         ++errcount;
@@ -1088,7 +1088,7 @@ parseaddress_size(char *cp, const char *fname, unsigned long lineno,
     cp = cp + clen + 1;
     cp = get_token(cp, &tok);
     if (tok.tk_len == 0) {
-        printf("dwarfdump.conf error: "
+        fprintf(glflags.cstdout,"dwarfdump.conf error: "
             "%s missing address size value %s line %lu",
             comtab->name, fname, lineno);
         ++errcount;
@@ -1121,7 +1121,7 @@ parseendabi(char *cp, const char *fname,
     cp = cp + clen + 1;
     cp = get_token(cp, &tok);
     if (strcmp(abiname, tok.tk_data) != 0) {
-        printf("%s error: "
+        fprintf(glflags.cstdout,"%s error: "
             "mismatch abi name %s (here) vs. "
             "%s (beginabi:)  %s line %lu\n",
             comtab->name, tok.tk_data, abiname, fname, lineno);
@@ -1354,7 +1354,7 @@ parse_abi(FILE * stream, const char *fname, const char *abiname,
         case LT_ADDRESS_SIZE:
             if (!inourabi) break;
             if (conf_internal->address_size_lineno > 0) {
-                printf("dwarfdump: duplicate address_size: "
+                fprintf(glflags.cstdout,"dwarfdump: duplicate address_size: "
                     "%s line %lu previous address_size:"
                     " line %lu\n",
                     fname, lineno,
@@ -1475,30 +1475,30 @@ print_reg_from_config_data(Dwarf_Unsigned reg,
 {
     char *name = 0;
     if (reg == config_data->cf_cfa_reg) {
-        fputs("cfa",stdout);
+        fputs("cfa", glflags.cstdout);
         return;
     }
     if (reg == config_data->cf_undefined_val) {
-        fputs("u",stdout);
+        fputs("u", glflags.cstdout);
         return;
     }
     if (reg == config_data->cf_same_val) {
-        fputs("s",stdout);
+        fputs("s", glflags.cstdout);
         return;
     }
 
     if (config_data->cf_regs == 0 ||
         reg >= config_data->cf_named_regs_table_size) {
-        printf("r%" DW_PR_DUu "",reg);
+        fprintf(glflags.cstdout,"r%" DW_PR_DUu "",reg);
         return;
     }
     name = config_data->cf_regs[reg];
     if (!name) {
         /* Can happen, the reg names table can be sparse. */
-        printf("r%" DW_PR_DUu "", reg);
+        fprintf(glflags.cstdout,"r%" DW_PR_DUu "", reg);
         return;
     }
-    fputs(name,stdout);
+    fputs(name, glflags.cstdout);
     return;
 }
 

@@ -61,7 +61,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <config.h>
 
-#include <stdio.h>  /* fprintf() printf() sprintf() */
+#include <stdio.h>  /* fprintf() fprintf(glflags.glos,) sprintf() */
 #include <stddef.h> /* NULL size_t */
 #include <stdlib.h> /* calloc() free() malloc() */
 
@@ -120,7 +120,7 @@ printlevel(int level)
     char number[40];
     /* This is a safe sprintf. No need for esb here. */
     len = sprintf(number,"<%d>",level);
-    printf("%s",number);
+    fprintf(glflags.glos,"%s",number);
     shownlen = len;
     while(shownlen < targetlen) {
         putchar(' ');
@@ -156,7 +156,7 @@ tdump_inner(struct ts_entry *t,
     if (t->keyptr) {
         keyv = keyprint(t->keyptr);
     }
-    printf("0x%08" DW_PR_DUx " <keyptr 0x%08" DW_PR_DUx "> "
+    fprintf(glflags.glos,"0x%08" DW_PR_DUx " <keyptr 0x%08" DW_PR_DUx "> "
         "<%s %s> <bal %3d> "
         "<l 0x%08" DW_PR_DUx "> <r 0x%08" DW_PR_DUx "> "
         "%s\n",
@@ -185,7 +185,7 @@ dd_local_check_balance_inner(struct ts_entry *t,int level,
     int l = 0;
     int r = 0;
     if (level > maxdepth) {
-        printf("%s Likely internal erroneous link loop, "
+        fprintf(glflags.glos,"%s Likely internal erroneous link loop, "
             "got to depth %d.\n",
             prefix,level);
         exit(EXIT_FAILURE);
@@ -195,7 +195,7 @@ dd_local_check_balance_inner(struct ts_entry *t,int level,
     }
     if (!t->llink && !t->rlink) {
         if (t->balance != 0) {
-            printf("%s: Balance at 0x%" DW_PR_DUx
+            fprintf(glflags.glos,"%s: Balance at 0x%" DW_PR_DUx
                 " should be 0 is %d.\n",
                 prefix,
                 (Dwarf_Unsigned)(uintptr_t)t,
@@ -209,7 +209,7 @@ dd_local_check_balance_inner(struct ts_entry *t,int level,
     r = dd_local_check_balance_inner(t->rlink,level+1,maxdepth,
         founderror,prefix);
     if (l ==r && t->balance != 0) {
-        printf("%s Balance at 0x%" DW_PR_DUx
+        fprintf(glflags.glos,"%s Balance at 0x%" DW_PR_DUx
             " d should be 0 is %d.\n",
             prefix,
             (Dwarf_Unsigned)(uintptr_t)t,
@@ -219,7 +219,7 @@ dd_local_check_balance_inner(struct ts_entry *t,int level,
     }
     if (l > r) {
         if ((l-r) != 1) {
-            printf("%s depth mismatch at 0x%" DW_PR_DUx
+            fprintf(glflags.glos,"%s depth mismatch at 0x%" DW_PR_DUx
                 "  l %d r %d.\n",
                 prefix,
                 (Dwarf_Unsigned)(uintptr_t)t,
@@ -227,7 +227,7 @@ dd_local_check_balance_inner(struct ts_entry *t,int level,
             (*founderror)++;
         }
         if (t->balance != -1) {
-            printf("%s Balance at 0x%" DW_PR_DUx
+            fprintf(glflags.glos,"%s Balance at 0x%" DW_PR_DUx
                 " should be -1 is %d.\n",
                 prefix,
                 (Dwarf_Unsigned)(uintptr_t)t,
@@ -238,7 +238,7 @@ dd_local_check_balance_inner(struct ts_entry *t,int level,
     }
     if (r != l) {
         if ((r-l) != 1) {
-            printf("%s depth mismatch at 0x%" DW_PR_DUx
+            fprintf(glflags.glos,"%s depth mismatch at 0x%" DW_PR_DUx
                 " r %d l %d.\n",
                 prefix,
                 (Dwarf_Unsigned)(uintptr_t)t,
@@ -246,7 +246,7 @@ dd_local_check_balance_inner(struct ts_entry *t,int level,
             (*founderror)++;
         }
         if (t->balance != 1) {
-            printf("%s Balance at 0x%" DW_PR_DUx
+            fprintf(glflags.glos,"%s Balance at 0x%" DW_PR_DUx
                 " should be 1 is %d.\n",
                 prefix,
                 (Dwarf_Unsigned)(uintptr_t)t,
@@ -255,7 +255,7 @@ dd_local_check_balance_inner(struct ts_entry *t,int level,
         }
     } else {
         if (t->balance != 0) {
-            printf("%s Balance at 0x%" DW_PR_DUx
+            fprintf(glflags.glos,"%s Balance at 0x%" DW_PR_DUx
                 " should be 0 is %d.\n",
                 prefix,
                 (Dwarf_Unsigned)(uintptr_t)t,
@@ -282,13 +282,13 @@ ddlocal_dwarf_check_balance(struct ts_entry *head,int finalprefix)
     }
 
     if (!head) {
-        printf("%s check balance null tree ptr\n",prefix);
+        fprintf(glflags.glos,"%s check balance null tree ptr\n",prefix);
         return;
     }
     root = head->rlink;
     headdepth = head->treedepth;
     if (!root) {
-        printf("%s check balance null tree ptr\n",prefix);
+        fprintf(glflags.glos,"%s check balance null tree ptr\n",prefix);
         return;
     }
 
@@ -298,14 +298,14 @@ ddlocal_dwarf_check_balance(struct ts_entry *head,int finalprefix)
     depth = ddlocal_dwarf_check_balance_inner(root,depth,maxdepth,
         &errcount,prefix);
     if (depth != headdepth) {
-        printf("%s Head node says depth %lu, it is really %d\n",
+        fprintf(glflags.glos,"%s Head node says depth %lu, it is really %d\n",
             prefix,
             (unsigned long)headdepth,
             depth);
         ++errcount;
     }
     if (errcount) {
-        printf("%s error count %d\n",prefix,errcount);
+        fprintf(glflags.glos,"%s error count %d\n",prefix,errcount);
     }
     return;
 }
@@ -322,18 +322,18 @@ dwarf_tdump(const void*headp_in,
     struct ts_entry *root = 0;
     size_t headdepth = 0;
     if (!head) {
-        printf("dumptree null tree ptr : %s\n",msg);
+        fprintf(glflags.glos,"dumptree null tree ptr : %s\n",msg);
         return;
     }
     headdepth = head->treedepth;
-    printf("dumptree head ptr : 0x%08" DW_PR_DUx
+    fprintf(glflags.glos,"dumptree head ptr : 0x%08" DW_PR_DUx
         " tree-depth %d: %s\n",
         (Dwarf_Unsigned)(uintptr_t)head,
         (int)headdepth,
         msg);
     root = head->rlink;
     if (!root) {
-        printf("Empty tree\n");
+        fprintf(glflags.glos,"Empty tree\n");
         return;
     }
     tdump_inner(root,keyprint,"top",0);

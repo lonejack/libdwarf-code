@@ -89,7 +89,7 @@ do_checking(Dwarf_Debug dbg, Dwarf_Arange *arange_buf,Dwarf_Signed i,
                 glflags.DIE_CU_offset = glflags.DIE_offset;
                 DWARF_CHECK_COUNT(aranges_result,1);
                 if (cu_die_offset != cudieoff2) {
-                    printf("Error, cu_die offsets mismatch,  0x%"
+                    fprintf(glflags.cstdout,"Error, cu_die offsets mismatch,  0x%"
                         DW_PR_DUx " != 0x%" DW_PR_DUx
                         " from arange data",
                         cu_die_offset,cudieoff2);
@@ -125,7 +125,7 @@ do_checking(Dwarf_Debug dbg, Dwarf_Arange *arange_buf,Dwarf_Signed i,
     if (dres == DW_DLV_OK) {
         DWARF_CHECK_COUNT(aranges_result,1);
         if (cudieoff3 != cu_die_offset) {
-            printf(
+            fprintf(glflags.cstdout,
                 "Error, cu_die offsets (b) mismatch ,  0x%"
                 DW_PR_DUx
                 " != 0x%" DW_PR_DUx " from arange data",
@@ -187,7 +187,7 @@ print_aranges(Dwarf_Debug dbg,Dwarf_Error *ga_err)
         esb_constructor_fixed(&truename,buf,sizeof(buf));
         get_true_section_name(dbg,".debug_aranges",
             &truename,TRUE);
-        printf("\n%s\n",sanitized(esb_get_string(&truename)));
+        fprintf(glflags.cstdout,"\n%s\n",sanitized(esb_get_string(&truename)));
         esb_destructor(&truename);
     }
     if (ares == DW_DLV_ERROR) {
@@ -377,14 +377,14 @@ print_aranges(Dwarf_Debug dbg,Dwarf_Error *ga_err)
                         glflags.seen_CU = FALSE;
                         glflags.need_CU_name = TRUE;
                         if (glflags.gf_do_print_dwarf) {
-                            printf("\n");
+                            fprintf(glflags.cstdout,"\n");
                         }
                     }
 
                     if (glflags.gf_do_print_dwarf) {
                         /* Print current aranges record */
                         if (segment_entry_size) {
-                            printf(
+                            fprintf(glflags.cstdout,
                                 "\narange starts at seg,off 0x%"
                                 DW_PR_XZEROS DW_PR_DUx
                                 ",0x%" DW_PR_XZEROS DW_PR_DUx
@@ -392,11 +392,11 @@ print_aranges(Dwarf_Debug dbg,Dwarf_Error *ga_err)
                                 segment,
                                 (Dwarf_Unsigned)start);
                         } else {
-                            printf("\narange starts at 0x%"
+                            fprintf(glflags.cstdout,"\narange starts at 0x%"
                                 DW_PR_XZEROS DW_PR_DUx ", ",
                                 (Dwarf_Unsigned)start);
                         }
-                        printf("length of 0x%" DW_PR_XZEROS DW_PR_DUx
+                        fprintf(glflags.cstdout,"length of 0x%" DW_PR_XZEROS DW_PR_DUx
                             ", cu_die_offset = 0x%"
                             DW_PR_XZEROS DW_PR_DUx,
                             length,
@@ -404,7 +404,7 @@ print_aranges(Dwarf_Debug dbg,Dwarf_Error *ga_err)
                     }
                     if (glflags.verbose &&
                         glflags.gf_do_print_dwarf) {
-                        printf(" cuhdr 0x%" DW_PR_XZEROS DW_PR_DUx
+                        fprintf(glflags.cstdout," cuhdr 0x%" DW_PR_XZEROS DW_PR_DUx
                             "\n",
                             (Dwarf_Unsigned)off);
                     }
@@ -414,7 +414,7 @@ print_aranges(Dwarf_Debug dbg,Dwarf_Error *ga_err)
                         this as there is a real record here, an
                         'arange end' record. */
                     if (glflags.gf_do_print_dwarf) {
-                        printf("\narange end\n");
+                        fprintf(glflags.cstdout,"\narange end\n");
                     }
                 }/* end start||length test */
             }  /* end aires DW_DLV_OK test */

@@ -52,10 +52,11 @@
 #include <config.h>
 
 #include <stddef.h> /* NULL size_t */
-#include <stdio.h>  /* printf() */
+#include <stdio.h>  /* fprintf(glflags.glos,) */
 #include <string.h> /* strlen() strchr() strcmp() strncmp() */
+#include "libdwarf.h" /* dd_minimal_count_global_error */
 #include "dd_minimal.h" /* dd_minimal_count_global_error */
-
+#include "dd_globals.h"
 #include "dd_getopt.h"
 
 #define STRIP_OFF_CONSTNESS(a)  ((void *)(size_t)(const void *)(a))

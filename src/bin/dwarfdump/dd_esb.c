@@ -51,6 +51,8 @@
 #include "dd_esb.h"
 #include "libdwarf_private.h" /* For malloc/calloc debug */
 #include "dd_minimal.h" /* For dwarfdump error count */
+#include "libdwarf.h"
+#include "dd_globals.h"
 
 /*  INITIAL_ALLOC value takes no account of space for a trailing NUL,
     the NUL is accounted for in init_esb_string

@@ -198,14 +198,14 @@ print_tag_attributes_usage(void)
     float rate_1;
     float rate_2;
     int tag;
-    printf("\n*** TAGS AND ATTRIBUTES USAGE ***\n");
+    fprintf(glflags.cstdout,"\n*** TAGS AND ATTRIBUTES USAGE ***\n");
     for (tag = 1; tag < DW_TAG_last; ++tag) {
         /* Print usage of children TAGs */
         if ( glflags.gf_print_usage_tag_attr_full || tag_usage[tag]) {
             usage_tag_tree_ptr = usage_tag_tree[tag];
             if (usage_tag_tree_ptr && print_header) {
                 total_tags += tag_usage[tag];
-                printf("%6d %s\n",
+                fprintf(glflags.cstdout,"%6d %s\n",
                     tag_usage[tag],
                     get_TAG_name(tag,pd_dwarf_names_print_on_error));
                 print_header = FALSE;
@@ -214,7 +214,7 @@ print_tag_attributes_usage(void)
                 if ( glflags.gf_print_usage_tag_attr_full ||
                     usage_tag_tree_ptr->count) {
                     total_tags += usage_tag_tree_ptr->count;
-                    printf("%6s %6d %s\n",
+                    fprintf(glflags.cstdout,"%6s %6d %s\n",
                         " ",
                         usage_tag_tree_ptr->count,
                         get_TAG_name(usage_tag_tree_ptr->tag,
@@ -232,7 +232,7 @@ print_tag_attributes_usage(void)
             usage_tag_attr_ptr = usage_tag_attr[tag];
             if (usage_tag_attr_ptr && print_header) {
                 total_tags += tag_usage[tag];
-                printf("%6d %s\n",
+                fprintf(glflags.cstdout,"%6d %s\n",
                     tag_usage[tag],
                     get_TAG_name(tag,pd_dwarf_names_print_on_error));
             }
@@ -240,7 +240,7 @@ print_tag_attributes_usage(void)
                 if ( glflags.gf_print_usage_tag_attr_full ||
                     usage_tag_attr_ptr->count) {
                     total_atrs += usage_tag_attr_ptr->count;
-                    printf("%6s %6d %s\n",
+                    fprintf(glflags.cstdout,"%6s %6d %s\n",
                         " ",
                         usage_tag_attr_ptr->count,
                         get_AT_name(usage_tag_attr_ptr->attr,
@@ -255,7 +255,7 @@ print_tag_attributes_usage(void)
         }
         print_header = TRUE;
     }
-    printf("** Summary **\n"
+    fprintf(glflags.cstdout,"** Summary **\n"
         "Number of standard tags      : %10" /*DW_PR_XZEROS*/
         DW_PR_DUu "\n"  /* TAGs */
         "Number of standard attributes: %10" /*DW_PR_XZEROS*/
@@ -269,9 +269,9 @@ print_tag_attributes_usage(void)
     total_found_atrs = 0;
 
     /* Print percentage of TAGs covered */
-    printf("\n*** STANDARD TAGS AND ATTRIBUTES USAGE RATE ***\n");
-    printf("%-32s %-16s %-16s\n"," ","Tags","Attributes");
-    printf("%-32s legal found rate legal found rate\n","TAG name");
+    fprintf(glflags.cstdout,"\n*** STANDARD TAGS AND ATTRIBUTES USAGE RATE ***\n");
+    fprintf(glflags.cstdout,"%-32s %-16s %-16s\n"," ","Tags","Attributes");
+    fprintf(glflags.cstdout,"%-32s legal found rate legal found rate\n","TAG name");
     for (tag = 1; tag < DW_TAG_last; ++tag) {
         tag_rate = &rate_tag_tree[tag];
         atr_rate = &rate_tag_attr[tag];
@@ -287,7 +287,7 @@ print_tag_attributes_usage(void)
                 total_found_tags += tag_rate->found;
                 total_legal_atrs += atr_rate->legal;
                 total_found_atrs += atr_rate->found;
-                printf("%-32s %5d %5d %3.0f%% %5d %5d %3.0f%%\n",
+                fprintf(glflags.cstdout,"%-32s %5d %5d %3.0f%% %5d %5d %3.0f%%\n",
                     get_TAG_name(tag,pd_dwarf_names_print_on_error),
                     tag_rate->legal,tag_rate->found,rate_1,
                     atr_rate->legal,atr_rate->found,rate_2);
@@ -300,7 +300,7 @@ print_tag_attributes_usage(void)
         (float)((total_found_tags * 100) / total_legal_tags) : 0;
     rate_2 = total_legal_atrs ?
         (float)((total_found_atrs * 100) / total_legal_atrs) : 0;
-    printf("%-32s %5d %5d %3.0f%% %5d %5d %3.0f%%\n",
+    fprintf(glflags.cstdout,"%-32s %5d %5d %3.0f%% %5d %5d %3.0f%%\n",
         "** Summary **",
         total_legal_tags,total_found_tags,rate_1,
         total_legal_atrs,total_found_atrs,rate_2);

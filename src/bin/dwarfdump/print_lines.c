@@ -71,14 +71,14 @@ print_source_intro(Dwarf_Debug dbg,Dwarf_Die cu_die)
         if (lres != DW_DLV_OK ||  !sec_name || !strlen(sec_name)) {
             sec_name = ".debug_info";
         }
-        printf("Source lines (from CU-DIE at %s offset 0x%"
+        fprintf(glflags.cstdout,"Source lines (from CU-DIE at %s offset 0x%"
             DW_PR_XZEROS DW_PR_DUx "):\n",
             sec_name,
             (Dwarf_Unsigned) off);
         DROP_ERROR_INSTANCE(dbg,lres,src_err);
     } else {
         DROP_ERROR_INSTANCE(dbg,ores,src_err);
-        printf("Source lines (for the CU-DIE at unknown"
+        fprintf(glflags.cstdout,"Source lines (for the CU-DIE at unknown"
             " location):\n");
     }
 }
@@ -185,42 +185,42 @@ process_line_table(Dwarf_Debug dbg,
     padding = glflags.gf_line_print_pc ? "            " : "";
     if (glflags.gf_do_print_dwarf) {
         /* Check if print of <pc> address is needed. */
-        printf("\n");
+        fprintf(glflags.cstdout,"\n");
         if (is_logicals_table) {
-            printf("Logicals Table:\n");
-            printf("%sNS new statement, PE prologue end, "
+            fprintf(glflags.cstdout,"Logicals Table:\n");
+            fprintf(glflags.cstdout,"%sNS new statement, PE prologue end, "
                 "EB epilogue begin\n",padding);
-            printf("%sDI=val discriminator value\n",
+            fprintf(glflags.cstdout,"%sDI=val discriminator value\n",
                 padding);
-            printf("%sCC=val context, SB=val subprogram\n",
+            fprintf(glflags.cstdout,"%sCC=val context, SB=val subprogram\n",
                 padding);
         } else if (is_actuals_table) {
-            printf("Actuals Table:\n");
-            printf("%sBB new basic block, ET end of text sequence\n"
+            fprintf(glflags.cstdout,"Actuals Table:\n");
+            fprintf(glflags.cstdout,"%sBB new basic block, ET end of text sequence\n"
                 "%sIS=val ISA number\n",padding,padding);
 
         } else {
             /* Standard DWARF line table. */
-            printf("%sNS new statement, BB new basic block, "
+            fprintf(glflags.cstdout,"%sNS new statement, BB new basic block, "
                 "ET end of text sequence\n",padding);
-            printf("%sPE prologue end, EB epilogue begin\n",padding);
-            printf("%sIS=val ISA number, "
+            fprintf(glflags.cstdout,"%sPE prologue end, EB epilogue begin\n",padding);
+            fprintf(glflags.cstdout,"%sIS=val ISA number, "
                 "DI=val discriminator value\n",
                 padding);
         }
         if (is_logicals_table || is_actuals_table) {
-            printf("[ row]  ");
+            fprintf(glflags.cstdout,"[ row]  ");
         }
         if (glflags.gf_line_print_pc) {
-            printf("<pc>        ");
+            fprintf(glflags.cstdout,"<pc>        ");
         }
         if (is_logicals_table) {
-            printf("[lno,col] NS PE EB DI= CC= SB= uri:"
+            fprintf(glflags.cstdout,"[lno,col] NS PE EB DI= CC= SB= uri:"
                 " \"filepath\"\n");
         } else if (is_actuals_table) {
-            printf("[logical] BB ET IS=\n");
+            fprintf(glflags.cstdout,"[logical] BB ET IS=\n");
         } else {
-            printf("[lno,col] NS BB ET PE EB IS= DI= uri:"
+            fprintf(glflags.cstdout,"[lno,col] NS BB ET PE EB IS= DI= uri:"
                 " \"filepath\"\n");
         }
     }
@@ -422,7 +422,7 @@ process_line_table(Dwarf_Debug dbg,
             if (glflags.gf_check_verbose_mode && PRINTING_UNIQUE) {
                 /*  Print the record number for better
                     error description */
-                printf("Record = %"  DW_PR_DUu
+                fprintf(glflags.cstdout,"Record = %"  DW_PR_DUu
                     " Addr = 0x%" DW_PR_XZEROS DW_PR_DUx
                     " [%4" DW_PR_DUu ",%2" DW_PR_DUu "] '%s'\n",
                     i, pc,lineno,column,
@@ -442,16 +442,16 @@ process_line_table(Dwarf_Debug dbg,
         }
         if (glflags.gf_do_print_dwarf) {
             if (is_logicals_table || is_actuals_table) {
-                printf("[%4" DW_PR_DUu "]  ", i + 1);
+                fprintf(glflags.cstdout,"[%4" DW_PR_DUu "]  ", i + 1);
             }
             /* Check if print of <pc> address is needed. */
             if (glflags.gf_line_print_pc) {
-                printf("0x%" DW_PR_XZEROS DW_PR_DUx "  ", pc);
+                fprintf(glflags.cstdout,"0x%" DW_PR_XZEROS DW_PR_DUx "  ", pc);
             }
             if (is_actuals_table) {
-                printf("[%7" DW_PR_DUu "]", logicalno);
+                fprintf(glflags.cstdout,"[%7" DW_PR_DUu "]", logicalno);
             } else {
-                printf("[%4" DW_PR_DUu ",%2" DW_PR_DUu "]",
+                fprintf(glflags.cstdout,"[%4" DW_PR_DUu ",%2" DW_PR_DUu "]",
                     lineno, column);
             }
         }
@@ -461,7 +461,7 @@ process_line_table(Dwarf_Debug dbg,
                 &newstatement, lt_err);
             if (nsres == DW_DLV_OK) {
                 if (newstatement && glflags.gf_do_print_dwarf) {
-                    printf(" %s","NS");
+                    fprintf(glflags.cstdout," %s","NS");
                 }
             } else if (nsres == DW_DLV_ERROR) {
                 struct esb_s m;
@@ -486,7 +486,7 @@ process_line_table(Dwarf_Debug dbg,
                 &new_basic_block, lt_err);
             if (nsres == DW_DLV_OK) {
                 if (new_basic_block && glflags.gf_do_print_dwarf) {
-                    printf(" %s","BB");
+                    fprintf(glflags.cstdout," %s","BB");
                 }
             } else if (nsres == DW_DLV_ERROR) {
                 struct esb_s m;
@@ -509,7 +509,7 @@ process_line_table(Dwarf_Debug dbg,
             if (nsres == DW_DLV_OK) {
                 if (lineendsequence &&
                     glflags.gf_do_print_dwarf) {
-                    printf(" %s", "ET");
+                    fprintf(glflags.cstdout," %s", "ET");
                 }
             } else if (nsres == DW_DLV_ERROR) {
                 struct esb_s m;
@@ -554,16 +554,16 @@ process_line_table(Dwarf_Debug dbg,
                 return disres;
             }
             if (prologue_end && !is_actuals_table) {
-                printf(" PE");
+                fprintf(glflags.cstdout," PE");
             }
             if (epilogue_begin && !is_actuals_table) {
-                printf(" EB");
+                fprintf(glflags.cstdout," EB");
             }
             if (isa && !is_logicals_table) {
-                printf(" IS=0x%" DW_PR_DUx, isa);
+                fprintf(glflags.cstdout," IS=0x%" DW_PR_DUx, isa);
             }
             if (discriminator && !is_actuals_table) {
-                printf(" DI=0x%" DW_PR_DUx, discriminator);
+                fprintf(glflags.cstdout," DI=0x%" DW_PR_DUx, discriminator);
             }
             if (is_logicals_table) {
                 call_context = 0;
@@ -586,7 +586,7 @@ process_line_table(Dwarf_Debug dbg,
                     return disres;
                 }
                 if (call_context) {
-                    printf(" CC=%" DW_PR_DUu, call_context);
+                    fprintf(glflags.cstdout," CC=%" DW_PR_DUu, call_context);
                 }
                 {
                     Dwarf_Unsigned subprogno = 0;
@@ -599,7 +599,7 @@ process_line_table(Dwarf_Debug dbg,
                             (called next)
                             so we need not check it here.  */
                     } else {
-                        printf("ERROR: dwarf_line_subprogno()"
+                        fprintf(glflags.cstdout,"ERROR: dwarf_line_subprogno()"
                             " impossibly! "
                             "fails. with result %d\n",disres);
                         glflags.gf_count_major_errors++;
@@ -629,7 +629,7 @@ process_line_table(Dwarf_Debug dbg,
                 if (subprog_name && strlen(subprog_name)) {
                     /*  We do not print an empty name.
                         Clutters things up. */
-                    printf(" SB=\"%s\"", sanitized(subprog_name));
+                    fprintf(glflags.cstdout," SB=\"%s\"", sanitized(subprog_name));
                 }
                 dwarf_dealloc(dbg,subprog_filename, DW_DLA_STRING);
                 subprog_filename = 0;
@@ -650,7 +650,7 @@ process_line_table(Dwarf_Debug dbg,
                     &urs);
                 esb_append(&urs,"\"");
                 if (glflags.gf_do_print_dwarf) {
-                    printf("%s",esb_get_string(&urs));
+                    fprintf(glflags.cstdout,"%s",esb_get_string(&urs));
                 }
                 esb_destructor(&urs);
                 esb_empty_string(&lastsrc);
@@ -662,7 +662,7 @@ process_line_table(Dwarf_Debug dbg,
             }
         }
         if (glflags.gf_do_print_dwarf) {
-            printf("\n");
+            fprintf(glflags.cstdout,"\n");
         }
         dwarf_dealloc(dbg,lsrc_filename, DW_DLA_STRING);
         lsrc_filename = 0;
@@ -693,7 +693,7 @@ print_line_context_record(Dwarf_Line_Context line_context,
     char bufr_tmp[ESB_FIXED_ALLOC_SIZE];
 
     esb_constructor_fixed(&bufr,bufr_tmp,sizeof(bufr_tmp));
-    printf("Line Context data\n");
+    fprintf(glflags.cstdout,"Line Context data\n");
     vres = dwarf_srclines_table_offset(line_context,&lsecoff,
         err);
     if (vres != DW_DLV_OK) {
@@ -702,7 +702,7 @@ print_line_context_record(Dwarf_Line_Context line_context,
             ". Something broken");
         return vres;
     }
-    printf(" Line Section Offset 0x%"
+    fprintf(glflags.cstdout," Line Section Offset 0x%"
         DW_PR_XZEROS DW_PR_DUx "\n", lsecoff);
     vres = dwarf_srclines_version(line_context,&version,
         &table_count, err);
@@ -712,10 +712,10 @@ print_line_context_record(Dwarf_Line_Context line_context,
             ". Something broken");
         return vres;
     }
-    printf(" version number      0x%" DW_PR_DUx
+    fprintf(glflags.cstdout," version number      0x%" DW_PR_DUx
         " %" DW_PR_DUu "\n",
         version,version);
-    printf(" number of line tables  %d.\n", table_count);
+    fprintf(glflags.cstdout," number of line tables  %d.\n", table_count);
     vres = dwarf_srclines_comp_dir(line_context,&name,err);
     if (vres != DW_DLV_OK) {
         simple_err_return_action(vres,
@@ -724,9 +724,9 @@ print_line_context_record(Dwarf_Line_Context line_context,
         return vres;
     }
     if (name) {
-        printf(" Compilation directory: %s\n",name);
+        fprintf(glflags.cstdout," Compilation directory: %s\n",name);
     } else {
-        printf(" Compilation directory: <unknown"
+        fprintf(glflags.cstdout," Compilation directory: <unknown"
             " no DW_AT_comp_dir>\n");
     }
 
@@ -738,7 +738,7 @@ print_line_context_record(Dwarf_Line_Context line_context,
             ". Something broken");
         return vres;
     }
-    printf(" include directory count 0x%"
+    fprintf(glflags.cstdout," include directory count 0x%"
         DW_PR_DUx " %" DW_PR_DSd "\n",
         (Dwarf_Unsigned)dir_count,dir_count);
     if (version == DW_LINE_VERSION5) {
@@ -765,7 +765,7 @@ print_line_context_record(Dwarf_Line_Context line_context,
             esb_destructor(&m);
             return vres;
         }
-        printf("  [%2" DW_PR_DSd "]  \"%s\"\n",i,name);
+        fprintf(glflags.cstdout,"  [%2" DW_PR_DSd "]  \"%s\"\n",i,name);
     }
 
     vres = dwarf_srclines_files_indexes(line_context,
@@ -775,7 +775,7 @@ print_line_context_record(Dwarf_Line_Context line_context,
             "\nERROR: Error accessing files indexes");
         return vres;
     }
-    printf( " files count 0x%"
+    fprintf(glflags.cstdout, " files count 0x%"
         DW_PR_DUx " %" DW_PR_DUu "\n",
         file_count,file_count);
     /*  Set up so just one loop control needed
@@ -813,28 +813,28 @@ print_line_context_record(Dwarf_Line_Context line_context,
         } else {
             esb_append(&bufr,"<ERROR:NULL name in files list>");
         }
-        printf("  [%2" DW_PR_DSd "]  %-24s ,",
+        fprintf(glflags.cstdout,"  [%2" DW_PR_DSd "]  %-24s ,",
             i,esb_get_string(&bufr));
-        printf(" directory index  %2" DW_PR_DUu ,dirindex);
-        printf(",  file length %2" DW_PR_DUu ,flength);
+        fprintf(glflags.cstdout," directory index  %2" DW_PR_DUu ,dirindex);
+        fprintf(glflags.cstdout,",  file length %2" DW_PR_DUu ,flength);
         if (md5data) {
             char *c = (char *)md5data;
             char *end = c+sizeof(*md5data);
-            printf(", file md5 value 0x");
+            fprintf(glflags.cstdout,", file md5 value 0x");
             while(c < end) {
-                printf("%02x",0xff&*c);
+                fprintf(glflags.cstdout,"%02x",0xff&*c);
                 ++c;
             }
-            printf(" ");
+            fprintf(glflags.cstdout," ");
         }
         if (modtime) {
             time_t tt3 = (time_t)modtime;
 
             /* ctime supplies newline */
-            printf( "file mod time 0x%lx %s", (unsigned long)tt3,
+            fprintf(glflags.cstdout, "file mod time 0x%lx %s", (unsigned long)tt3,
                 ctime(&tt3));
         } else {
-            printf("  file mod time 0\n");
+            fprintf(glflags.cstdout,"  file mod time 0\n");
         }
     }
     esb_destructor(&bufr);
@@ -853,7 +853,7 @@ print_line_context_record(Dwarf_Line_Context line_context,
     /*  The following is for the experimental table
         which is only DWARF4 so far, so no need for
         a dwarf_srclines_subprog_indexes() function. Yet. */
-    printf(" subprograms count (experimental) 0x%"
+    fprintf(glflags.cstdout," subprograms count (experimental) 0x%"
         DW_PR_DUx " %" DW_PR_DUu "\n",
         subprog_count,subprog_count);
     for (i = 1; i <= subprog_count; ++i) {
@@ -876,7 +876,7 @@ print_line_context_record(Dwarf_Line_Context line_context,
             esb_destructor(&m);
             return vres;
         }
-        printf("  [%2" DW_PR_DSd "]  \"%s\""
+        fprintf(glflags.cstdout,"  [%2" DW_PR_DSd "]  \"%s\""
             ", fileindex %2" DW_PR_DUu
             ", lineindex  %2" DW_PR_DUu
             "\n",
@@ -928,7 +928,7 @@ print_line_numbers_this_cu(Dwarf_Debug dbg, Dwarf_Die cu_die,
         esb_constructor_fixed(&truename,buf,sizeof(buf));
         get_true_section_name(dbg,".debug_line",
             &truename,FALSE); /* Ignore the COMPRESSED flags */
-        printf("\n%s: line number info for a single cu\n",
+        fprintf(glflags.cstdout,"\n%s: line number info for a single cu\n",
             sanitized(esb_get_string(&truename)));
         esb_destructor(&truename);
     } else {
@@ -1182,12 +1182,12 @@ print_line_numbers_this_cu(Dwarf_Debug dbg, Dwarf_Die cu_die,
                     dwarf_srclines_dealloc_b(line_context);
                     return ores;
                 } else {
-                    printf(" Line table is present (offset 0x%"
+                    fprintf(glflags.cstdout," Line table is present (offset 0x%"
                         DW_PR_XZEROS DW_PR_DUx
                         ") but no lines present\n", off);
                 }
             } else {
-                printf(" Line table is present but"
+                fprintf(glflags.cstdout," Line table is present but"
                     " no lines present\n");
             }
         }

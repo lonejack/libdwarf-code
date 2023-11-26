@@ -47,7 +47,7 @@
 static void
 print_3key_record(int num,Three_Key_Entry *e)
 {
-    printf("3key %d 0x%x 0x%x 0x%x st %d%d ct %lu\n",
+    fprintf(glflags.glos,"3key %d 0x%x 0x%x 0x%x st %d%d ct %lu\n",
         num,e->key1,e->key2,e->key3,
         e->std_or_exten,e->from_tables,
         (unsigned long)e->count);
@@ -454,7 +454,7 @@ print_attr_form_usage(int pd_dwarf_names_print_on_error)
         sizeof(Three_Key_Entry));
     tkarray=tk_l;
     if (!tk_l) {
-        printf("ERROR: unable to malloc attr/form array "
+        fprintf(glflags.cstdout,"ERROR: unable to malloc attr/form array "
             " for a summary report \n");
         glflags.gf_count_major_errors++;
         return;
@@ -463,7 +463,7 @@ print_attr_form_usage(int pd_dwarf_names_print_on_error)
     recordcount = 0;
     dwarf_twalk(threekey_attr_form_base,extract_3key_entry);
     if (recordcount != recordmax) {
-        printf("ERROR: unable to fill in attr/form array "
+        fprintf(glflags.cstdout,"ERROR: unable to fill in attr/form array "
             " for a summary report, count %lu != walk %lu \n",
             (unsigned long)recordcount,
             (unsigned long)recordmax);
@@ -483,11 +483,11 @@ print_attr_form_usage(int pd_dwarf_names_print_on_error)
     }
     qsort(tk_l,recordmax,sizeof(Three_Key_Entry),
         qsortcountattr);
-    printf("\n*** ATTRIBUTES AND FORMS USAGE ***\n");
-    printf("Full record count                    : %8" DW_PR_DUu "\n",
+    fprintf(glflags.cstdout,"\n*** ATTRIBUTES AND FORMS USAGE ***\n");
+    fprintf(glflags.cstdout,"Full record count                    : %8" DW_PR_DUu "\n",
         recordmax);
-    printf("Total number of objectfile attributes: %8.0f\n", total);
-    printf("[]                                        "
+    fprintf(glflags.cstdout,"Total number of objectfile attributes: %8.0f\n", total);
+    fprintf(glflags.cstdout,"[]                                        "
         "                found rate\n");
     localformat="[%3u] %-30s %-20s %7" DW_PR_DUu " %.0f%%\n";
     localsum = 0;
@@ -499,14 +499,14 @@ print_attr_form_usage(int pd_dwarf_names_print_on_error)
             continue;
         }
         pct = ( (float)tke->count / total)*100.0f;
-        printf(localformat,
+        fprintf(glflags.cstdout,localformat,
             (unsigned)i,
             get_AT_name(tke->key1,pd_dwarf_names_print_on_error),
             get_FORM_name(tke->key3,pd_dwarf_names_print_on_error),
             tke->count,pct);
         localsum += tke->count;
     }
-    printf(localformat, (unsigned)(recordmax),
+    fprintf(glflags.cstdout,localformat, (unsigned)(recordmax),
         "Sum found:","",localsum,100.0f);
 
     qsort(tk_l,recordmax,sizeof(Three_Key_Entry),
@@ -516,8 +516,8 @@ print_attr_form_usage(int pd_dwarf_names_print_on_error)
     curform = 0;
     formtotal = 0;
     startnoted = FALSE;
-    printf("\n*** COUNT BY FORMCLASS ***\n");
-    printf("[]                                 found rate\n");
+    fprintf(glflags.cstdout,"\n*** COUNT BY FORMCLASS ***\n");
+    fprintf(glflags.cstdout,"[]                                 found rate\n");
     localsum = 0;
     localformat="[%2u] %-28s %6" DW_PR_DUu " %.0f%%\n";
     for (i = 0; i < recordmax; ++i) {
@@ -535,7 +535,7 @@ print_attr_form_usage(int pd_dwarf_names_print_on_error)
         }
         if (curform != tke->key2) {
             pct = ( (float)formtotal / total)*100.0f;
-            printf(localformat,
+            fprintf(glflags.cstdout,localformat,
                 (unsigned)j,
                 get_FORM_CLASS_name(curform,
                 pd_dwarf_names_print_on_error),
@@ -550,14 +550,14 @@ print_attr_form_usage(int pd_dwarf_names_print_on_error)
     }
     if (formtotal) {
         pct = ( (float)formtotal / total)*100.0f;
-        printf(localformat,
+        fprintf(glflags.cstdout,localformat,
             (unsigned)j,
             get_FORM_CLASS_name(curform,
             pd_dwarf_names_print_on_error),
             formtotal,pct);
         localsum += formtotal;
     }
-    printf(localformat, (unsigned)(j+1),
+    fprintf(glflags.cstdout,localformat, (unsigned)(j+1),
         "Sum found:",localsum,100.0f);
 
     /* Re-using the following two */
@@ -567,8 +567,8 @@ print_attr_form_usage(int pd_dwarf_names_print_on_error)
     qsort(tk_l,recordmax,sizeof(Three_Key_Entry),
         qsortform);
     j = 0;
-    printf("\n*** COUNT BY FORM ***\n");
-    printf("[]                         found rate\n");
+    fprintf(glflags.cstdout,"\n*** COUNT BY FORM ***\n");
+    fprintf(glflags.cstdout,"[]                         found rate\n");
     localformat="[%2u] %-20s %6" DW_PR_DUu " %.0f%%\n";
     localsum = 0;
     for (i = 0; i < recordmax; ++i) {
@@ -586,7 +586,7 @@ print_attr_form_usage(int pd_dwarf_names_print_on_error)
         }
         if (curform != tke->key3) {
             pct = ( (float)formtotal / total)*100.0f;
-            printf(localformat,
+            fprintf(glflags.cstdout,localformat,
                 (unsigned)j,
                 get_FORM_name(curform,
                 pd_dwarf_names_print_on_error),
@@ -601,22 +601,22 @@ print_attr_form_usage(int pd_dwarf_names_print_on_error)
     }
     if (formtotal) {
         pct = ( (float)formtotal / total)*100.0f;
-        printf(localformat,
+        fprintf(glflags.cstdout,localformat,
             (unsigned)j,
             get_FORM_name(curform,
             pd_dwarf_names_print_on_error),
             formtotal,pct);
         localsum += formtotal;
     }
-    printf(localformat, (unsigned)(j+1),
+    fprintf(glflags.cstdout,localformat, (unsigned)(j+1),
         "Sum found:",localsum,100.0f);
 
     j = 0;
     curattr = 0;
     attrtotal = 0;
     startnoted = FALSE;
-    printf("\n*** COUNT BY ATTRIBUTE ***\n");
-    printf("[]                                   found rate\n");
+    fprintf(glflags.cstdout,"\n*** COUNT BY ATTRIBUTE ***\n");
+    fprintf(glflags.cstdout,"[]                                   found rate\n");
     localsum = 0;
     localformat="[%2u] %-30s %6" DW_PR_DUu " %.0f%%\n";
     for (i = 0; i < recordmax; ++i) {
@@ -634,7 +634,7 @@ print_attr_form_usage(int pd_dwarf_names_print_on_error)
         }
         if (curattr != tke->key1) {
             pct = ( (float)attrtotal / total)*100.0f;
-            printf(localformat,
+            fprintf(glflags.cstdout,localformat,
                 (unsigned)j,
                 get_AT_name(curattr,
                     pd_dwarf_names_print_on_error),
@@ -649,13 +649,13 @@ print_attr_form_usage(int pd_dwarf_names_print_on_error)
     }
     if (attrtotal) {
         pct = ( (float)attrtotal / total)*100.0f;
-        printf(localformat,
+        fprintf(glflags.cstdout,localformat,
             (unsigned)j,
             get_AT_name(curattr,pd_dwarf_names_print_on_error),
             attrtotal,pct);
         localsum += attrtotal;
     }
-    printf(localformat, (unsigned)(j+1),
+    fprintf(glflags.cstdout,localformat, (unsigned)(j+1),
         "Sum found:",localsum,100.0f);
     free(tk_l);
     tkarray = 0;

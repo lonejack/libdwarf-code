@@ -51,7 +51,7 @@ print_sec_name(Dwarf_Debug dbg)
     esb_constructor_fixed(&truename,buf,sizeof(buf));
     get_true_section_name(dbg,".debug_addr",
         &truename,TRUE);
-    printf("\n%s\n\n",sanitized(esb_get_string(&truename)));
+    fprintf(glflags.cstdout,"\n%s\n\n",sanitized(esb_get_string(&truename)));
     esb_destructor(&truename);
 }
 
@@ -65,19 +65,19 @@ print_table_header(Dwarf_Unsigned tabnum,
     Dwarf_Unsigned entry_count,
     Dwarf_Unsigned next_table_offset)
 {
-    printf("Debug Addr table       : %" DW_PR_DUu "\n",tabnum);
-    printf(" table length          : %" DW_PR_DUu "\n",length);
-    printf(" table version         : %u\n",version);
-    printf(" address size          : %u\n",address_size);
-    printf(" segment selector size : 0\n");
-    printf(" table entry count     : %" DW_PR_DUu "\n",entry_count);
-    printf(" table section offset  : 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
+    fprintf(glflags.cstdout,"Debug Addr table       : %" DW_PR_DUu "\n",tabnum);
+    fprintf(glflags.cstdout," table length          : %" DW_PR_DUu "\n",length);
+    fprintf(glflags.cstdout," table version         : %u\n",version);
+    fprintf(glflags.cstdout," address size          : %u\n",address_size);
+    fprintf(glflags.cstdout," segment selector size : 0\n");
+    fprintf(glflags.cstdout," table entry count     : %" DW_PR_DUu "\n",entry_count);
+    fprintf(glflags.cstdout," table section offset  : 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
         cur_secoff);
-    printf(" addr base             : 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
+    fprintf(glflags.cstdout," addr base             : 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
         at_addr_base);
-    printf(" addr base  will match some "
+    fprintf(glflags.cstdout," addr base  will match some "
         "DW_AT_addr_base attribute\n");
-    printf(" next table offset     : 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
+    fprintf(glflags.cstdout," next table offset     : 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
         next_table_offset);
 }
 
@@ -124,7 +124,7 @@ print_debug_addr(Dwarf_Debug dbg,
                 return eres;
             }
             if (eres == DW_DLV_NO_ENTRY) {
-                printf("ERROR: Unexpected NO entry on "
+                fprintf(glflags.cstdout,"ERROR: Unexpected NO entry on "
                     ".debug_addr table %" DW_PR_DUu
                     " offset 0x" DW_PR_XZEROS DW_PR_DUx
                     " entry index %" DW_PR_DUu "\n",
@@ -133,15 +133,15 @@ print_debug_addr(Dwarf_Debug dbg,
                 break;
             }
             if (!curindex) {
-                printf(" [index] address\n");
+                fprintf(glflags.cstdout," [index] address\n");
             }
 
-            printf(" [%3" DW_PR_DUu "]"
+            fprintf(glflags.cstdout," [%3" DW_PR_DUu "]"
                 " 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
                 curindex,addr);
         }
         dwarf_dealloc_debug_addr_table(tab);
     }
-    printf("\n");
+    fprintf(glflags.cstdout,"\n");
     return DW_DLV_OK;
 }

@@ -31,7 +31,7 @@ Portions Copyright (C) 2011-2012 SN Systems Ltd.  .  All Rights Reserved.
 
 #include <config.h>
 
-#include <stdio.h> /* printf() */
+#include <stdio.h> /* fprintf(glflags.glos,) */
 
 /* Windows specific header files */
 #if defined(_WIN32) && defined(HAVE_STDAFX_H)
@@ -65,11 +65,11 @@ print_args(int argc , char *argv[] )
 {
     if (glflags.gf_show_args_flag) {
         int index = 1;
-        printf("Arguments: ");
+        fprintf(glflags.cstdout,"Arguments: ");
         for (index = 1; index < argc; ++index) {
-            printf("%s ",sanitized(argv[index]));
+            fprintf(glflags.cstdout, "%s ",sanitized(argv[index]));
         }
-        printf("\n");
+        fprintf(glflags.cstdout, "\n");
     }
 }
 
@@ -82,6 +82,6 @@ print_usage_message(
 {
     unsigned i = 0;
     for (i = 0; *text[i]; ++i) {
-        printf("%s\n", text[i]);
+        fprintf(glflags.cstdout,"%s\n", text[i]);
     }
 }

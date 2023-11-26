@@ -92,26 +92,26 @@ print_str_offsets_section(Dwarf_Debug dbg,Dwarf_Error *err)
             esb_constructor_fixed(&truename,buf,sizeof(buf));
             get_true_section_name(dbg,".debug_str_offsets",
                 &truename,TRUE);
-            printf("\n%s\n",sanitized(esb_get_string(&truename)));
+            fprintf(glflags.cstdout,"\n%s\n",sanitized(esb_get_string(&truename)));
             esb_destructor(&truename);
         } else {
-            printf("\n");
+            fprintf(glflags.cstdout,"\n");
         }
-        printf(" table %" DW_PR_DUu "\n",tabnum);
-        printf(" tableheader 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
+        fprintf(glflags.cstdout," table %" DW_PR_DUu "\n",tabnum);
+        fprintf(glflags.cstdout," tableheader 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
             unit_length_offset);
-        printf(" arrayoffset 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
+        fprintf(glflags.cstdout," arrayoffset 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
             table_start_offset);
-        printf(" unit length 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
+        fprintf(glflags.cstdout," unit length 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
             unit_length);
-        printf(" entry size  %u\n",entry_size);
-        printf(" version     %u\n",version);
+        fprintf(glflags.cstdout," entry size  %u\n",entry_size);
+        fprintf(glflags.cstdout," version     %u\n",version);
         if (padding) {
-            printf("Error: padding is non-zero. "
+            fprintf(glflags.cstdout,"Error: padding is non-zero. "
                 "Something is wrong.\n");
         }
-        printf(" padding     0x%x\n",padding);
-        printf(" arraysize   %" DW_PR_DUu "\n",table_value_count);
+        fprintf(glflags.cstdout," padding     0x%x\n",padding);
+        fprintf(glflags.cstdout," arraysize   %" DW_PR_DUu "\n",table_value_count);
 
         /*  Lets print 4 per row. */
         count_in_row = 0;
@@ -124,24 +124,24 @@ print_str_offsets_section(Dwarf_Debug dbg,Dwarf_Error *err)
                 return res;
             }
             if (!count_in_row) {
-                printf(" Entry [%4" DW_PR_DUu "]: ",i);
+                fprintf(glflags.cstdout," Entry [%4" DW_PR_DUu "]: ",i);
             }
-            printf(" 0x%" DW_PR_XZEROS DW_PR_DUx ,
+            fprintf(glflags.cstdout," 0x%" DW_PR_XZEROS DW_PR_DUx ,
                 table_entry_value);
             ++count_in_row;
             if (count_in_row < rowlim) {
                 continue;
             }
-            printf("\n");
+            fprintf(glflags.cstdout,"\n");
             count_in_row = 0;
         }
         if (count_in_row) {
-            printf("\n");
+            fprintf(glflags.cstdout,"\n");
         }
         res = dwarf_str_offsets_statistics(sot,&wasted_byte_count,
             &table_count,err);
         if (res == DW_DLV_OK) {
-            printf(" wasted      %" DW_PR_DUu " bytes\n",
+            fprintf(glflags.cstdout," wasted      %" DW_PR_DUu " bytes\n",
                 wasted_byte_count);
         }
         if (res == DW_DLV_ERROR) {
@@ -153,7 +153,7 @@ print_str_offsets_section(Dwarf_Debug dbg,Dwarf_Error *err)
         res = dwarf_str_offsets_statistics(sot,&wasted_byte_count,
             &table_count,err);
         if (res == DW_DLV_OK) {
-            printf(" finalwasted %" DW_PR_DUu " bytes\n",
+            fprintf(glflags.cstdout," finalwasted %" DW_PR_DUu " bytes\n",
                 wasted_byte_count);
         } else {
             res = dwarf_close_str_offsets_table_access(sot,err);

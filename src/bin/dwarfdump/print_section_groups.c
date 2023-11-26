@@ -27,7 +27,7 @@ Copyright (C) 2017-2017  David Anderson. All rights reserved.
 
 #include <config.h>
 
-#include <stdio.h>  /* printf() */
+#include <stdio.h>  /* fprintf(glflags.glos,) */
 #include <stdlib.h> /* calloc() free() */
 
 #include "dwarf.h"
@@ -239,20 +239,20 @@ print_section_groups_data(Dwarf_Debug dbg,Dwarf_Error *error)
             Simplifies regression testing for now. */
         return DW_DLV_OK;
     }
-    printf("Section Groups data\n");
-    printf("  Number of Elf-like sections: %4" DW_PR_DUu "\n",
+    fprintf(glflags.cstdout,"Section Groups data\n");
+    fprintf(glflags.cstdout,"  Number of Elf-like sections: %4" DW_PR_DUu "\n",
         section_count);
-    printf("  Number of groups           : %4" DW_PR_DUu "\n",
+    fprintf(glflags.cstdout,"  Number of groups           : %4" DW_PR_DUu "\n",
         group_count);
-    printf("  Group to print             : %4" DW_PR_DUu "\n",
+    fprintf(glflags.cstdout,"  Group to print             : %4" DW_PR_DUu "\n",
         selected_group);
-    printf("  Count of map entries       : %4" DW_PR_DUu "\n",
+    fprintf(glflags.cstdout,"  Count of map entries       : %4" DW_PR_DUu "\n",
         group_map_entry_count);
 
     sec_nums = calloc(group_map_entry_count,sizeof(Dwarf_Unsigned));
     if (!sec_nums) {
         glflags.gf_count_major_errors++;
-        printf("ERROR: Unable to allocate %4" DW_PR_DUu
+        fprintf(glflags.cstdout,"ERROR: Unable to allocate %4" DW_PR_DUu
             " map section values, cannot print group map\n",
             group_map_entry_count);
         return DW_DLV_OK;
@@ -261,7 +261,7 @@ print_section_groups_data(Dwarf_Debug dbg,Dwarf_Error *error)
     if (!group_nums) {
         free(group_nums);
         glflags.gf_count_major_errors++;
-        printf("ERROR: Unable to allocate %4" DW_PR_DUu
+        fprintf(glflags.cstdout,"ERROR: Unable to allocate %4" DW_PR_DUu
             " map group values, cannot print group map\n",
             group_map_entry_count);
         return DW_DLV_OK;
@@ -271,7 +271,7 @@ print_section_groups_data(Dwarf_Debug dbg,Dwarf_Error *error)
         free(group_nums);
         free(sec_nums);
         glflags.gf_count_major_errors++;
-        printf("ERROR: Unable to allocate %4" DW_PR_DUu
+        fprintf(glflags.cstdout,"ERROR: Unable to allocate %4" DW_PR_DUu
             " section name pointers, cannot print group map\n",
             group_map_entry_count);
         return DW_DLV_OK;
@@ -287,9 +287,9 @@ print_section_groups_data(Dwarf_Debug dbg,Dwarf_Error *error)
 
     for ( i = 0; i < group_map_entry_count; ++i) {
         if (i == 0) {
-            printf("  [index]  group section\n");
+            fprintf(glflags.cstdout,"  [index]  group section\n");
         }
-        printf("  [%5" DW_PR_DUu "] "
+        fprintf(glflags.cstdout,"  [%5" DW_PR_DUu "] "
             "%4" DW_PR_DUu
             "  %4" DW_PR_DUu
             " %s\n",i,

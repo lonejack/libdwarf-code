@@ -70,7 +70,7 @@ print_culist_array(Dwarf_Gdbindex  gdbindex,
             "ERROR: dwarf_gdbindex_culist_array failed.");
         return res;
     }
-    printf("  CU list. array length: %" DW_PR_DUu
+    fprintf(glflags.cstdout,"  CU list. array length: %" DW_PR_DUu
         " format: [entry#] cuoffset culength\n",
         list_len);
 
@@ -97,14 +97,14 @@ print_culist_array(Dwarf_Gdbindex  gdbindex,
             esb_destructor(&msg);
             return res;
         }
-        printf("    [%4" DW_PR_DUu "] 0x%"
+        fprintf(glflags.cstdout,"    [%4" DW_PR_DUu "] 0x%"
             DW_PR_XZEROS DW_PR_DUx
             " 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
             i,
             cuoffset,
             culength);
     }
-    printf("\n");
+    fprintf(glflags.cstdout,"\n");
     *cu_list_len = list_len;
     return DW_DLV_OK;
 }
@@ -125,7 +125,7 @@ print_types_culist_array(Dwarf_Gdbindex  gdbindex,
             res,*cular_err);
         return res;
     }
-    printf("  TU list. array length: %" DW_PR_DUu
+    fprintf(glflags.cstdout,"  TU list. array length: %" DW_PR_DUu
         " format: [entry#] cuoffset culength signature\n",
         list_len);
 
@@ -155,7 +155,7 @@ print_types_culist_array(Dwarf_Gdbindex  gdbindex,
             esb_destructor(&msg);
             return res;
         }
-        printf("    [%4" DW_PR_DUu "] 0x%"
+        fprintf(glflags.cstdout,"    [%4" DW_PR_DUu "] 0x%"
             DW_PR_XZEROS DW_PR_DUx
             " 0x%" DW_PR_XZEROS DW_PR_DUx
             " 0x%" DW_PR_XZEROS DW_PR_DUx "\n",
@@ -164,7 +164,7 @@ print_types_culist_array(Dwarf_Gdbindex  gdbindex,
             culength,
             signature);
     }
-    printf("\n");
+    fprintf(glflags.cstdout,"\n");
     return DW_DLV_OK;
 }
 
@@ -181,7 +181,7 @@ print_addressarea(Dwarf_Gdbindex  gdbindex,
             "dwarf_gdbindex_addressarea failed",res,*addra_err);
         return res;
     }
-    printf("  Address table array length: %" DW_PR_DUu
+    fprintf(glflags.cstdout,"  Address table array length: %" DW_PR_DUu
         " format: [entry#] lowpc highpc cu-index\n",
         list_len);
 
@@ -211,7 +211,7 @@ print_addressarea(Dwarf_Gdbindex  gdbindex,
             esb_destructor(&msg);
             return res;
         }
-        printf("    [%4" DW_PR_DUu "] 0x%"
+        fprintf(glflags.cstdout,"    [%4" DW_PR_DUu "] 0x%"
             DW_PR_XZEROS DW_PR_DUx
             " 0x%" DW_PR_XZEROS DW_PR_DUx
             " %4" DW_PR_DUu "\n",
@@ -220,7 +220,7 @@ print_addressarea(Dwarf_Gdbindex  gdbindex,
             highpc,
             cu_index);
     }
-    printf("\n");
+    fprintf(glflags.cstdout,"\n");
     return DW_DLV_OK;
 }
 
@@ -277,7 +277,7 @@ print_symtab_entry(Dwarf_Gdbindex gdbindex,
 
     if (symnameoffset == 0 && cuvecoffset == 0) {
         if (glflags.verbose > 1) {
-            printf("        [%4" DW_PR_DUu "] "
+            fprintf(glflags.cstdout,"        [%4" DW_PR_DUu "] "
                 "\"empty-hash-entry\"\n",
                 index);
         }
@@ -322,7 +322,7 @@ print_symtab_entry(Dwarf_Gdbindex gdbindex,
         return res;
     }
     if (glflags.verbose > 1) {
-        printf("     [%4" DW_PR_DUu "]"
+        fprintf(glflags.cstdout,"     [%4" DW_PR_DUu "]"
             "stroff 0x%"    DW_PR_XZEROS DW_PR_DUx
             " cuvecoff 0x%"    DW_PR_XZEROS DW_PR_DUx
             " cuveclen 0x%"    DW_PR_XZEROS DW_PR_DUx "\n",
@@ -373,7 +373,7 @@ print_symtab_entry(Dwarf_Gdbindex gdbindex,
         get_kind_string(&tmp_kind,symbol_kind),
         get_cu_index_string(&tmp_cuindx,cu_index,culist_len);
         if (cuvec_len == 1) {
-            printf("  [%4" DW_PR_DUu "]"
+            fprintf(glflags.cstdout,"  [%4" DW_PR_DUu "]"
                 "%s"
                 " [%s %s] \"%s\"\n",
                 index,
@@ -384,17 +384,17 @@ print_symtab_entry(Dwarf_Gdbindex gdbindex,
                 esb_get_string(&tmp_kind),
                 sanitized(name));
         } else if (ii == 0) {
-            printf("  [%4" DW_PR_DUu "] \"%s\"\n" ,
+            fprintf(glflags.cstdout,"  [%4" DW_PR_DUu "] \"%s\"\n" ,
                 index,
                 sanitized(name));
-            printf("         %s [%s %s]\n",
+            fprintf(glflags.cstdout,"         %s [%s %s]\n",
                 esb_get_string(&tmp_cuindx),
                 is_static?
                     "static ":
                     "global ",
                 esb_get_string(&tmp_kind));
         }else{
-            printf("         %s [%s %s]\n",
+            fprintf(glflags.cstdout,"         %s [%s %s]\n",
                 esb_get_string(&tmp_cuindx),
                 is_static?
                     "static ":
@@ -404,7 +404,7 @@ print_symtab_entry(Dwarf_Gdbindex gdbindex,
         esb_destructor(&tmp_cuindx);
         esb_destructor(&tmp_kind);
         if (glflags.verbose > 1) {
-            printf("        [%4" DW_PR_DUu "]"
+            fprintf(glflags.cstdout,"        [%4" DW_PR_DUu "]"
                 "attr 0x%"    DW_PR_XZEROS DW_PR_DUx
                 " cuindx 0x%"    DW_PR_XZEROS DW_PR_DUx
                 " kind 0x%"    DW_PR_XZEROS DW_PR_DUx
@@ -437,10 +437,10 @@ print_symboltable(Dwarf_Gdbindex  gdbindex,
         esb_destructor(&msg);
         return res;
     }
-    printf("\n  Symbol table: length %" DW_PR_DUu
+    fprintf(glflags.cstdout,"\n  Symbol table: length %" DW_PR_DUu
         " format: [entry#] symindex cuindex [type] \"name\" or \n",
         list_len);
-    printf("                          "
+    fprintf(glflags.cstdout,"                          "
         " format: [entry#]  \"name\" , list of  cuindex [type]\n");
 
     for (i = 0; i < list_len; i++) {
@@ -473,7 +473,7 @@ print_symboltable(Dwarf_Gdbindex  gdbindex,
             return res;
         }
     }
-    printf("\n");
+    fprintf(glflags.cstdout,"\n");
     return DW_DLV_OK;
 }
 
@@ -512,7 +512,7 @@ print_gdb_index(Dwarf_Debug dbg,Dwarf_Error *err)
         return res;
     }
     if (res == DW_DLV_ERROR) {
-        printf(" ERROR: .gdb_index not readable  %s\n",
+        fprintf(glflags.cstdout," ERROR: .gdb_index not readable  %s\n",
             err?dwarf_errmsg(*err):"No details available");
         glflags.gf_count_major_errors++;
         return res;
@@ -524,26 +524,26 @@ print_gdb_index(Dwarf_Debug dbg,Dwarf_Error *err)
         esb_constructor_fixed(&truename,buf,sizeof(buf));
         get_true_section_name(dbg,".gdb_index",
             &truename,TRUE);
-        printf("\n%s\n",sanitized(esb_get_string(&truename)));
+        fprintf(glflags.cstdout,"\n%s\n",sanitized(esb_get_string(&truename)));
         esb_destructor(&truename);
     }
 
-    printf("  Version             : "
+    fprintf(glflags.cstdout,"  Version             : "
         "0x%" DW_PR_XZEROS DW_PR_DUx  "\n",
         version);
-    printf("  CU list offset      : "
+    fprintf(glflags.cstdout,"  CU list offset      : "
         "0x%" DW_PR_XZEROS DW_PR_DUx "\n",
         cu_list_offset);
-    printf("  Address area offset : "
+    fprintf(glflags.cstdout,"  Address area offset : "
         "0x%" DW_PR_XZEROS DW_PR_DUx "\n",
         types_cu_list_offset);
-    printf("  Symbol table offset : "
+    fprintf(glflags.cstdout,"  Symbol table offset : "
         "0x%" DW_PR_XZEROS DW_PR_DUx "\n",
         address_area_offset);
-    printf("  Constant pool offset: "
+    fprintf(glflags.cstdout,"  Constant pool offset: "
         "0x%" DW_PR_XZEROS DW_PR_DUx "\n",
         constant_pool_offset);
-    printf("  section size        : "
+    fprintf(glflags.cstdout,"  section size        : "
         "0x%" DW_PR_XZEROS DW_PR_DUx "\n",
         section_size);
 

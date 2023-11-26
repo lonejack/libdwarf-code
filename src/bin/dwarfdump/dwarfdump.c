@@ -197,7 +197,7 @@ check_for_notes(void)
         w = "were";
         e = "MACRONOTEs";
     }
-    printf("There %s %ld DWARF %s reported: "
+    fprintf(glflags.cstdout,"There %s %ld DWARF %s reported: "
         "see MACRONOTE above.\n",
         w, ect,e);
 }
@@ -214,7 +214,7 @@ check_for_major_errors(void)
         w = "were";
         e = "errors";
     }
-    printf("There %s %ld DWARF %s reported: "
+    fprintf(glflags.cstdout,"There %s %ld DWARF %s reported: "
         "see ERROR above.\n",
         w, ect,e);
 }
@@ -372,9 +372,13 @@ main(int argc, char *argv[])
         dd_command_options.c */
     print_args(argc,argv);
 
+    /* define the "gl" output stream */
+    //glflags.glos = NULL;
+
     /*  Redirect stdout  to an specific file */
     if (glflags.output_file) {
-        if (NULL == freopen(glflags.output_file,"w",stdout)) {
+        glflags.cstdout = fopen(glflags.output_file, "w");
+        if (NULL == glflags.cstdout) {
             printf("ERROR dwarfdump: Unable to redirect "
                 "output to '%s'\n",
                 glflags.output_file);
@@ -384,6 +388,9 @@ main(int argc, char *argv[])
         /* Record version and arguments in the output file */
         print_version_details(argv[0]);
         print_args(argc,argv);
+    }
+    else {
+        glflags.cstdout = stdout;
     }
 
     /*  Allow the user to hide some warnings by using
@@ -441,7 +448,7 @@ main(int argc, char *argv[])
     temp_path_buf_len = strlen(file_name)*3 + 200 + 2;
     temp_path_buf = malloc(temp_path_buf_len);
     if (!temp_path_buf) {
-        printf("%s ERROR:  Unable to malloc %lu bytes "
+        fprintf(glflags.cstdout,"%s ERROR:  Unable to malloc %lu bytes "
             "for possible path string %s.\n",
             glflags.program_name,(unsigned long)temp_path_buf_len,
             file_name);
@@ -462,11 +469,11 @@ main(int argc, char *argv[])
         &path_source,&errcode);
     if (res != DW_DLV_OK) {
         if (res == DW_DLV_ERROR) {
-            printf("%s ERROR:  Can't open/use %s. Error %s\n",
+            fprintf(glflags.cstdout,"%s ERROR:  Can't open/use %s. Error %s\n",
                 glflags.program_name, sanitized(file_name),
                 dwarf_errmsg_by_number(errcode));
         } else {
-            printf("%s ERROR:  Can't open %s. "
+            fprintf(glflags.cstdout,"%s ERROR:  Can't open %s. "
                 "There is no valid object file with that name)\n",
                 glflags.program_name, sanitized(file_name));
         }
@@ -479,7 +486,7 @@ main(int argc, char *argv[])
     global_basefd = open_a_file(esb_get_string(
         &global_file_name));
     if (global_basefd == -1) {
-        printf("%s ERROR:  can't open.. %s\n",
+        fprintf(glflags.cstdout,"%s ERROR:  can't open.. %s\n",
             glflags.program_name,
             esb_get_string(&global_file_name));
         global_destructors();
@@ -507,12 +514,12 @@ main(int argc, char *argv[])
         if (res != DW_DLV_OK) {
             if (res == DW_DLV_ERROR) {
                 char *errmsg = dwarf_errmsg_by_number(errcode);
-                printf("%s ERROR:  can't open tied file"
+                fprintf(glflags.cstdout,"%s ERROR:  can't open tied file"
                     ".. %s: %s\n",
                     glflags.program_name, sanitized(tied_file_name),
                     errmsg);
             } else {
-                printf(
+                fprintf(glflags.cstdout,
                     "%s ERROR: tied file not an object file '%s'.\n",
                     glflags.program_name, sanitized(tied_file_name));
             }
@@ -523,7 +530,7 @@ main(int argc, char *argv[])
         }
         if (ftype != tftype || endian != tendian ||
             offsetsize != toffsetsize) {
-            printf("%s ERROR:  tied file \'%s\' and "
+            fprintf(glflags.cstdout,"%s ERROR:  tied file \'%s\' and "
                 "main file \'%s\' not "
                 "the same kind of object!\n",
                 glflags.program_name,
@@ -538,7 +545,7 @@ main(int argc, char *argv[])
         global_tiedfd = open_a_file(esb_get_string(
             &global_tied_file_name));
         if (global_tiedfd == -1) {
-            printf("%s ERROR:  can't open tied file"
+            fprintf(glflags.cstdout,"%s ERROR:  can't open tied file"
                 "... %s\n",
                 glflags.program_name,
                 sanitized(esb_get_string(&global_tied_file_name)));
@@ -554,7 +561,7 @@ main(int argc, char *argv[])
     if ((ftype == DW_FTYPE_ELF && (glflags.gf_reloc_flag ||
         glflags.gf_header_flag)) ||
         ftype == DW_FTYPE_ARCHIVE) {
-        printf("ERROR Can't process %s: archives and "
+        fprintf(glflags.cstdout,"ERROR Can't process %s: archives and "
             "printing elf headers not supported in this dwarfdump "
             "--disable-libelf build.\n",
             file_name);
@@ -575,7 +582,7 @@ main(int argc, char *argv[])
             glflags.config_file_data);
         flag_data_post_cleanup();
     } else {
-        printf("ERROR Can't process %s: unhandled format\n",
+        fprintf(glflags.cstdout,"ERROR Can't process %s: unhandled format\n",
             file_name);
         glflags.gf_count_major_errors++;
     }
@@ -598,6 +605,9 @@ main(int argc, char *argv[])
         no internal errors and we should return an OKAY condition,
         regardless if the file being processed has
         minor errors. */
+    if (glflags.cstdout != NULL) {
+        fclose(glflags.cstdout);
+    }
     exit(0);
 }
 
@@ -617,7 +627,7 @@ print_any_harmless_errors(Dwarf_Debug dbg)
         return;
     }
     if (totalcount > 0) {
-        printf("\n*** HARMLESS ERROR COUNT: %u ***\n",totalcount);
+        fprintf(glflags.cstdout,"\n*** HARMLESS ERROR COUNT: %u ***\n",totalcount);
     }
     for (i = 0 ; buf[i]; ++i) {
         ++printcount;
@@ -650,11 +660,11 @@ print_search_results(void)
             search_text = glflags.search_regex_text;
         }
     }
-    fflush(stdout);
-    printf("\nSearch type      : '%s'\n",search_type);
-    printf("Pattern searched : '%s'\n",search_text);
-    printf("Occurrences Found: %d\n",glflags.search_occurrences);
-    fflush(stdout);
+    fflush(glflags.cstdout);
+    fprintf(glflags.cstdout,"\nSearch type      : '%s'\n",search_type);
+    fprintf(glflags.cstdout,"Pattern searched : '%s'\n",search_text);
+    fprintf(glflags.cstdout,"Occurrences Found: %d\n",glflags.search_occurrences);
+    fflush(glflags.cstdout);
 }
 
 /*  This is for dwarf_print_lines(), we are not using
@@ -664,7 +674,7 @@ printf_callback_for_libdwarf(void *userdata,
     const char *data)
 {
     (void)userdata;
-    printf("%s",sanitized(data));
+    fprintf(glflags.cstdout,"%s",sanitized(data));
 }
 
 int
@@ -770,7 +780,7 @@ static void
 printlnrec(const char *msg,struct likely_names_s * ln,
     int line,char * fn)
 {
-    printf("%s: name %s origindx %d "
+    fprintf(glflags.glos,"%s: name %s origindx %d "
         "low 0x%lx "
         "size 0x%lx "
         "end 0x%lx "
@@ -926,11 +936,11 @@ process_one_file(
     }
     if (dres == DW_DLV_NO_ENTRY) {
         if (glflags.group_number > 0) {
-            printf("No DWARF information present in %s "
+            fprintf(glflags.cstdout,"No DWARF information present in %s "
                 "for section group %d \n",
                 file_name,glflags.group_number);
         } else {
-            printf("No DWARF information present in %s\n",file_name);
+            fprintf(glflags.cstdout,"No DWARF information present in %s\n",file_name);
         }
         return dres;
     }
@@ -942,10 +952,10 @@ process_one_file(
         return DW_DLV_NO_ENTRY;
     }
     if (path_source == DW_PATHSOURCE_dsym) {
-        printf("Filename by dSYM is %s\n",
+        fprintf(glflags.cstdout,"Filename by dSYM is %s\n",
             sanitized(temp_path_buf));
     } else if (path_source == DW_PATHSOURCE_debuglink) {
-        printf("Filename by debuglink is %s\n",
+        fprintf(glflags.cstdout,"Filename by debuglink is %s\n",
             sanitized(temp_path_buf));
         glflags.gf_gnu_debuglink_flag = TRUE;
     } else { /* Nothing to print yet. */ }
@@ -958,7 +968,7 @@ process_one_file(
             if (count != 1) {
                 name = "objects";
             }
-            printf("This is a Mach-O Universal Binary with %"
+            fprintf(glflags.cstdout,"This is a Mach-O Universal Binary with %"
                 DW_PR_DUu " %s.  This is object %"
                 DW_PR_DUu "\n",
                 count,name,index);
@@ -979,7 +989,7 @@ process_one_file(
             /* path_source = DW_PATHSOURCE_basic; */
         }
         if (dres == DW_DLV_NO_ENTRY) {
-            printf("No DWARF information present in tied file: %s\n",
+            fprintf(glflags.cstdout,"No DWARF information present in tied file: %s\n",
                 tied_file_name);
             return dres;
         }
@@ -999,7 +1009,7 @@ process_one_file(
                 if (count != 1) {
                     name = "objects";
                 }
-                printf("The tied-file is a Mach-O Universal Binary "
+                fprintf(glflags.cstdout,"The tied-file is a Mach-O Universal Binary "
                     "with %"
                     DW_PR_DUu " %s.  This is object %"
                     DW_PR_DUu "\n",
@@ -1497,7 +1507,7 @@ process_one_file(
         }
     }
     if (glflags.gf_debug_addr_missing) {
-        printf("\nERROR: At some point "
+        fprintf(glflags.cstdout,"\nERROR: At some point "
             "the .debug_addr section was needed but missing, "
             "meaning some frame information was missing "
             "relevant function names. See the dwarfdump "
@@ -1505,7 +1515,7 @@ process_one_file(
         glflags.gf_count_major_errors++;
     }
     if (glflags.gf_error_code_search_by_address) {
-        printf("\nERROR: At some point "
+        fprintf(glflags.cstdout,"\nERROR: At some point "
             "There was some data corruption in frame data "
             "so at least the following error occurred: "
             "%s .\n",
@@ -1532,7 +1542,7 @@ process_one_file(
         DROP_ERROR_INSTANCE(dbg,dres,onef_err);
         dbg = 0;
     }
-    printf("\n");
+    fprintf(glflags.cstdout,"\n");
     destroy_attr_form_trees();
     destruct_abbrev_array();
     esb_close_null_device();
@@ -1551,7 +1561,7 @@ simple_err_return_msg_either_action(int res,const char *msg)
         etype="Major error";
     }
     glflags.gf_count_major_errors++;
-    printf("%s fails. %s\n",msg,etype);
+    fprintf(glflags.cstdout,"%s fails. %s\n",msg,etype);
     return res;
 }
 int
@@ -1560,7 +1570,7 @@ simple_err_return_action(int res,const char *msg)
     if (res == DW_DLV_ERROR) {
         const char *etype = "Major error";
         glflags.gf_count_major_errors++;
-        printf("%s %s\n",msg, etype);
+        fprintf(glflags.cstdout,"%s %s\n",msg, etype);
     }
     return res;
 }
@@ -1572,7 +1582,7 @@ simple_err_only_return_action(int res,const char *msg)
     /*const char *msg = "\nERROR: dwarf_get_address_size() fails."; */
 
     glflags.gf_count_major_errors++;
-    printf("%s %s\n",msg,etype);
+    fprintf(glflags.cstdout,"%s %s\n",msg,etype);
     return res;
 }
 
@@ -1587,7 +1597,7 @@ print_error_maybe_continue( const char * msg,
     Dwarf_Bool do_continue)
 {
     unsigned long realmajorerr = glflags.gf_count_major_errors;
-    printf("\n");
+    fprintf(glflags.cstdout,"\n");
     if (dwarf_ret_val == DW_DLV_ERROR) {
         /* We do not dwarf_dealloc the error here. */
         char * errmsg = dwarf_errmsg(lerr);
@@ -1597,21 +1607,21 @@ print_error_maybe_continue( const char * msg,
             the error string so we do not need to print
             the dwarf_errno() value to show the number. */
         if (do_continue) {
-            printf(
+            fprintf(glflags.cstdout,
                 "%s ERROR:  %s:  %s. "
                 "Attempting to continue.\n",
                 glflags.program_name, msg, errmsg);
         } else {
-            printf( "%s ERROR:  %s:  %s\n",
+            fprintf(glflags.cstdout, "%s ERROR:  %s:  %s\n",
                 glflags.program_name, msg, errmsg);
         }
     } else if (dwarf_ret_val == DW_DLV_NO_ENTRY) {
-        printf("%s NO ENTRY:  %s: \n",
+        fprintf(glflags.cstdout,"%s NO ENTRY:  %s: \n",
             glflags.program_name, msg);
     } else if (dwarf_ret_val == DW_DLV_OK) {
-        printf("%s:  %s \n", glflags.program_name, msg);
+        fprintf(glflags.cstdout,"%s:  %s \n", glflags.program_name, msg);
     } else {
-        printf("%s ERROR InternalError:  %s:  code %d\n",
+        fprintf(glflags.cstdout,"%s ERROR InternalError:  %s:  code %d\n",
             glflags.program_name, msg, dwarf_ret_val);
         ++realmajorerr;
     }
@@ -1914,7 +1924,7 @@ print_secname(Dwarf_Debug dbg,const char *secname)
         esb_constructor_fixed(&truename,buf,sizeof(buf));
         get_true_section_name(dbg,secname,
             &truename,TRUE);
-        printf("\n%s\n",sanitized(esb_get_string(&truename)));
+        fprintf(glflags.cstdout,"\n%s\n",sanitized(esb_get_string(&truename)));
         esb_destructor(&truename);
     }
 }
@@ -1958,21 +1968,21 @@ print_gnu_debuglink(Dwarf_Debug dbg, Dwarf_Error *error)
         print_secname(dbg,".gnu_debuglink");
         /* Done with error checking, so print if we are printing. */
         if (glflags.gf_do_print_dwarf)  {
-            printf(" Debuglink name  : %s",sanitized(name));
+            fprintf(glflags.cstdout," Debuglink name  : %s",sanitized(name));
             {
                 unsigned char *crc = 0;
                 unsigned char *end = 0;
 
                 crc = crcbytes;
                 end = crcbytes +4;
-                printf("   crc 0X: ");
+                fprintf(glflags.cstdout,"   crc 0X: ");
                 for (; crc < end; crc++) {
-                    printf("%02x ", *crc);
+                    fprintf(glflags.cstdout,"%02x ", *crc);
                 }
             }
-            printf("\n");
+            fprintf(glflags.cstdout,"\n");
             if (link_path_len) {
-                printf(" Debuglink target: %s\n",
+                fprintf(glflags.cstdout," Debuglink target: %s\n",
                     sanitized(link_path));
             }
         }
@@ -1980,11 +1990,11 @@ print_gnu_debuglink(Dwarf_Debug dbg, Dwarf_Error *error)
     if (buildidlength) {
         print_secname(dbg,".note.gnu.build-id");
         if (glflags.gf_do_print_dwarf)  {
-            printf(" Build-id  type     : %u\n", buildidtype);
-            printf(" Build-id  ownername: %s\n",
+            fprintf(glflags.cstdout," Build-id  type     : %u\n", buildidtype);
+            fprintf(glflags.cstdout," Build-id  ownername: %s\n",
                 sanitized(buildidowner));
-            printf(" Build-id  length   : %u\n",buildidlength);
-            printf(" Build-id           : ");
+            fprintf(glflags.cstdout," Build-id  length   : %u\n",buildidlength);
+            fprintf(glflags.cstdout," Build-id           : ");
             {
                 const unsigned char *cur = 0;
                 const unsigned char *end = 0;
@@ -1992,18 +2002,18 @@ print_gnu_debuglink(Dwarf_Debug dbg, Dwarf_Error *error)
                 cur = buildidbyteptr;
                 end = cur + buildidlength;
                 for (; cur < end; cur++) {
-                    printf("%02x", (unsigned char)*cur);
+                    fprintf(glflags.cstdout,"%02x", (unsigned char)*cur);
                 }
             }
-            printf("\n");
+            fprintf(glflags.cstdout,"\n");
         }
     }
     if (paths_array_length) {
         unsigned i = 0;
 
-        printf(" Possible "
+        fprintf(glflags.cstdout," Possible "
             ".gnu_debuglink/.note.gnu.build-id pathnames for\n");
-        printf(" an alternate object file with more detailed "
+        fprintf(glflags.cstdout," an alternate object file with more detailed "
             "DWARF\n");
         for ( ; i < paths_array_length; ++i) {
             char *path = paths_array[i];
@@ -2019,7 +2029,7 @@ print_gnu_debuglink(Dwarf_Debug dbg, Dwarf_Error *error)
             unsigned char  pathsource = 0;
             int            errcode  = 0;
 
-            printf("  [%u] %s\n",i,sanitized(path));
+            fprintf(glflags.cstdout,"  [%u] %s\n",i,sanitized(path));
             res = dwarf_object_detector_path_b(path,
                 outpath,outpathlen,
                 0,0,
@@ -2027,41 +2037,41 @@ print_gnu_debuglink(Dwarf_Debug dbg, Dwarf_Error *error)
                 &filesize, &pathsource, &errcode);
             if (res == DW_DLV_NO_ENTRY) {
                 if (glflags.verbose) {
-                    printf(" file above does not exist\n");
+                    fprintf(glflags.cstdout," file above does not exist\n");
                 }
                 continue;
             }
             if (res == DW_DLV_ERROR) {
-                printf("       access attempt of the above leads"
+                fprintf(glflags.cstdout,"       access attempt of the above leads"
                     " to error %s\n",
                     dwarf_errmsg_by_number(errcode));
                 continue;
             }
             switch(ftype) {
             case DW_FTYPE_ELF:
-                printf("       file above is an Elf object\n");
+                fprintf(glflags.cstdout,"       file above is an Elf object\n");
                 break;
             case DW_FTYPE_MACH_O:
-                printf("       file above is a Mach-O object\n");
+                fprintf(glflags.cstdout,"       file above is a Mach-O object\n");
                 break;
             case DW_FTYPE_PE:
-                printf("       file above is a PE object");
+                fprintf(glflags.cstdout,"       file above is a PE object");
                 break;
             case DW_FTYPE_ARCHIVE:
                 if (glflags.verbose) {
-                    printf("       file above is an archive "
+                    fprintf(glflags.cstdout,"       file above is an archive "
                         "so ignore it.\n");
                 }
                 continue;
             default:
                 if (glflags.verbose) {
-                    printf("       file above is not"
+                    fprintf(glflags.cstdout,"       file above is not"
                         " any object type we recognize\n");
                 }
                 continue;
             }
         }
-        printf("\n");
+        fprintf(glflags.cstdout,"\n");
     }
     free(link_path);
     free(paths_array);
@@ -2270,10 +2280,10 @@ PRINT_CU_INFO(void)
     if (!cu_data_is_set()) {
         return;
     }
-    printf("\n");
-    printf("CU Name = %s\n",sanitized(glflags.CU_name));
-    printf("CU Producer = %s\n",sanitized(glflags.CU_producer));
-    printf("DIE OFF = 0x%" DW_PR_XZEROS DW_PR_DUx
+    fprintf(glflags.cstdout,"\n");
+    fprintf(glflags.cstdout,"CU Name = %s\n",sanitized(glflags.CU_name));
+    fprintf(glflags.cstdout,"CU Producer = %s\n",sanitized(glflags.CU_producer));
+    fprintf(glflags.cstdout,"DIE OFF = 0x%" DW_PR_XZEROS DW_PR_DUx
         " GOFF = 0x%" DW_PR_XZEROS DW_PR_DUx,
         loff,goff);
     /* We used to print leftover and incorrect values at times. */
@@ -2291,8 +2301,8 @@ PRINT_CU_INFO(void)
         sprintf(lbuf,
             "0x%"  DW_PR_XZEROS DW_PR_DUx,glflags.CU_low_address);
     }
-    printf(", Low PC = %s, High PC = %s", lbuf,hbuf);
-    printf("\n");
+    fprintf(glflags.cstdout,", Low PC = %s, High PC = %s", lbuf,hbuf);
+    fprintf(glflags.cstdout,"\n");
 }
 
 void
@@ -2339,12 +2349,12 @@ void
 dump_unique_errors_table(void)
 {
     unsigned int index;
-    printf("*** Unique Errors Table ***\n");
-    printf("Delta  : %d\n",SET_UNIQUE_ERRORS_DELTA);
-    printf("Size   : %d\n",set_unique_errors_size);
-    printf("Entries: %d\n",set_unique_errors_entries);
+    fprintf(glflags.glos,"*** Unique Errors Table ***\n");
+    fprintf(glflags.glos,"Delta  : %d\n",SET_UNIQUE_ERRORS_DELTA);
+    fprintf(glflags.glos,"Size   : %d\n",set_unique_errors_size);
+    fprintf(glflags.glos,"Entries: %d\n",set_unique_errors_entries);
     for (index = 0; index < set_unique_errors_entries; ++index) {
-        printf("%3d: '%s'\n",index,set_unique_errors[index]);
+        fprintf(glflags.glos,"%3d: '%s'\n",index,set_unique_errors[index]);
     }
 }
 #endif
@@ -2475,10 +2485,10 @@ print_dwarf_check_error(const char *s1,
     if (glflags.gf_print_unique_errors) {
         found = add_to_unique_errors_table(error_text);
         if (!found) {
-            printf("%s",error_text);
+            fprintf(glflags.cstdout,"%s",error_text);
         }
     } else {
-        printf("%s",error_text);
+        fprintf(glflags.cstdout,"%s",error_text);
     }
 
     /*  To indicate if the current error message has
@@ -2507,7 +2517,7 @@ void
 report_caller_error_drop_error(int dwdlv,
     int line, char *fname)
 {
-    printf("\nERROR in dwarfdump:"
+    fprintf(glflags.cstdout,"\nERROR in dwarfdump:"
         " The value passed to the macro DROP_ERROR_INSTANCE "
         "is not one of the three allowed values, but is "
         "%d. dwarfdump has a bug. "

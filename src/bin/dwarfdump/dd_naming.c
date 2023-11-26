@@ -83,7 +83,7 @@ ellipname(int   res,
         if (printonerr && glflags.gf_check_dwarf_constants &&
             checking_this_compiler()) {
             if (glflags.gf_check_verbose_mode) {
-                printf("ERROR %s of %d (0x%x) is unknown "
+                fprintf(glflags.cstdout,"ERROR %s of %d (0x%x) is unknown "
                     "to dwarfdump. "
                     "Continuing. \n",ty,val_in,val_in );
                 glflags.gf_count_major_errors++;
@@ -94,14 +94,14 @@ ellipname(int   res,
 #else
         /* This is for the tree-generation, not dwarfdump itself. */
         if (printonerr) {
-            printf("ERROR %s of %d (0x%x) is unknown to dwarfdump. "
+            fprintf(glflags.glos,"ERROR %s of %d (0x%x) is unknown to dwarfdump. "
                 "Continuing. \n",ty,val_in,val_in );
             glflags.gf_count_major_errors++;
         }
 #endif
         n = makename(esb_get_string(&eb));
         if (!n) {
-            printf("Out of memory extracting ellipsis name\n");
+            fprintf(glflags.cstdout,"Out of memory extracting ellipsis name\n");
             esb_destructor(&eb);
             return "";
         }

@@ -334,7 +334,7 @@ hexdig(char c)
         return ochar;
     }
     /* We have an input botch here. */
-    printf("ERROR Translating from uri: "
+    fprintf(glflags.cstdout,"ERROR Translating from uri: "
         "A supposed hexadecimal input character is "
         "not 0-9 or a-f or A-F, it is (shown as hex here): %x\n",c);
     glflags.gf_count_major_errors++;
@@ -359,7 +359,7 @@ hexpairtochar(const char *cp, char*myochar)
             ochar = tohex(c,c2);
             olen = 2;
         } else {
-            printf("ERROR Translating from uri: "
+            fprintf(glflags.cstdout,"ERROR Translating from uri: "
                 "A supposed hexadecimal input character pair "
                 "runs off the end of the input after 1 hex digit.\n");
             glflags.gf_count_major_errors++;
@@ -369,7 +369,7 @@ hexpairtochar(const char *cp, char*myochar)
         }
     } else {
         /* botched input. */
-        printf("ERROR Translating from uri: "
+        fprintf(glflags.cstdout,"ERROR Translating from uri: "
             "A supposed hexadecimal input character pair "
             "runs off the end of the input.\n");
         glflags.gf_count_major_errors++;
@@ -423,7 +423,7 @@ mytestfrom(const char * in,const char *expected,int testnum)
     esb_constructor(&out);
     translate_from_uri(in, &out);
     if (strcmp(expected, esb_get_string(&out))) {
-        printf(" Fail test %d expected \"%s\" got \"%s\"\n",
+        fprintf(glflags.glos," Fail test %d expected \"%s\" got \"%s\"\n",
             testnum,expected,esb_get_string(&out));
         ++errcnt;
     }
@@ -437,7 +437,7 @@ mytest(char *in,char *expected,int testnum)
     esb_constructor(&out);
     translate_to_uri(in, &out);
     if (strcmp(expected, esb_get_string(&out))) {
-        printf(" Fail test %d expected %s got %s\n",
+        fprintf(glflags.glos," Fail test %d expected %s got %s\n",
             testnum,expected,esb_get_string(&out));
         ++errcnt;
     }
@@ -470,7 +470,7 @@ main()
     mytest("%bc","%25bc",18);
 
     if (errcnt) {
-        printf("uri errcount ",errcnt);
+        fprintf(glflags.glos,"uri errcount ",errcnt);
     }
     return errcnt? 1:0;
 }
